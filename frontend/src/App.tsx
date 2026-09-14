@@ -5,8 +5,10 @@ import { useAuth } from './auth'
 import { Layout } from './components/Layout'
 import { Waking } from './components/Waking'
 import { CaseDetailPage } from './pages/CaseDetailPage'
+import { AuditPage } from './pages/AuditPage'
 import { CasesPage } from './pages/CasesPage'
 import { LoginPage } from './pages/LoginPage'
+import { UsersPage } from './pages/UsersPage'
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -30,6 +32,8 @@ export default function App() {
         >
           <Route path="/cases" element={<CasesPage />} />
           <Route path="/cases/:caseId" element={<CaseDetailPage />} />
+          <Route path="/audit" element={<AuditPage />} />
+          <Route path="/users" element={<UsersPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/cases" replace />} />
       </Routes>

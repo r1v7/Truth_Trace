@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import analysis, auth, cases, evidence, interviews, reports
+from app.api.routes import analysis, audit, auth, cases, evidence, interviews, reports
 from app.core.config import settings
 from app.core.security import hash_password
 from app.db.session import SessionLocal
@@ -74,6 +74,7 @@ app.include_router(interviews.router, prefix="/api")
 app.include_router(analysis.router, prefix="/api")
 app.include_router(evidence.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
+app.include_router(audit.router, prefix="/api")
 
 
 @app.get("/health", tags=["meta"])

@@ -5,9 +5,11 @@
     "disclaimer": "Truth Trace highlights differences between statements. It does not determine guilt. Every result must be reviewed by the investigator."
   },
   "nav": {
-    "cases": "cases",
+    "cases": "Cases",
     "logout": "Sign out",
-    "language": "العربية"
+    "language": "العربية",
+    "audit": "Audit",
+    "users": "Users"
   },
   "login": {
     "title": "Sign in",
@@ -162,6 +164,50 @@
   "waking": {
     "title": "Waking the demo server…",
     "detail": "The free tier sleeps when idle; the first request takes up to a minute."
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "audit": {
+    "eyebrow": "Audit trail",
+    "title": "Every action, kept",
+    "blurb": "Append-only. Every state-changing action on case data is recorded and can never be edited or deleted. Investigators see only the cases they are a member of.",
+    "entries": "Entries",
+    "count": "{{shown}} of {{total}}",
+    "action": "Action",
+    "allActions": "All actions",
+    "allTime": "All time",
+    "lastDays": "Last {{count}} days",
+    "when": "When",
+    "actor": "Actor",
+    "entity": "Entity",
+    "case": "Case",
+    "from": "From",
+    "empty": "No entries match this filter.",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "users": {
+    "eyebrow": "Access",
+    "title": "Users and roles",
+    "blurb": "Global roles govern what a user may do system-wide. Access to an individual case is granted separately, per case.",
+    "accounts": "Accounts",
+    "add": "Add user",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "role": "Role",
+    "inactive": "inactive",
+    "readOnly": "read-only — only admins can add users",
+    "forbidden": "Your role cannot view the user list. This attempt was logged.",
+    "whatRolesDo": "What each role can do",
+    "roleHelp": {
+      "investigator": "Own and work the cases they are a member of. Run comparisons and record reviews.",
+      "supervisor": "Everything above, plus decide submitted reports and view the user list.",
+      "admin": "All cases, plus create users and assign global roles."
+    }
   },
   "common": {
     "cancel": "Cancel",

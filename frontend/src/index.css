@@ -8,6 +8,49 @@
 @import "./fonts.css";
 
 @theme {
+  /* Colours are declared as CSS variables on :root below, not baked in here, so the
+     same token name resolves differently per theme. */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+/* Light is a paper-and-ink reading surface, not the dark palette inverted: on white,
+   the dark theme's accents are far too bright to read, so each one is re-chosen at a
+   contrast that works against paper. */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-ink: #10151d;
+  --color-ink-soft: #2b3547;
+  --color-muted: #5c6879;
+  --color-muted-dim: #7d8ba1;
+
+  --color-page: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-2: #f2f4f7;
+  --color-raised: #e8ecf2;
+
+  --color-line: #dfe4ec;
+  --color-line-2: #ccd4e0;
+  --color-line-3: #b3bed0;
+
+  --color-accent: #0f8f7c;
+  --color-accent-hi: #0b7566;
+  --color-accent-ink: #ffffff;
+
+  --color-danger: #c62828;
+  --color-danger-soft: #8c1c1c;
+  --color-warn: #a35a00;
+  --color-warn-soft: #7a4400;
+  --color-violet: #5b46c8;
+
+  --grid-line: rgba(15, 143, 124, 0.055);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
   --color-ink: #e6ecf5;
   --color-ink-soft: #c8d3e2;
   --color-muted: #8a97ad;
@@ -32,12 +75,7 @@
   --color-warn-soft: #ffd399;
   --color-violet: #9b8cff;
 
-  --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
-}
-
-:root {
-  color-scheme: dark;
+  --grid-line: rgba(53, 224, 196, 0.035);
 }
 
 html {
@@ -54,8 +92,8 @@ body {
   /* Faint survey grid: this is a forensic tool, and the grid says so quietly. */
   background-color: var(--color-page);
   background-image:
-    linear-gradient(rgba(53, 224, 196, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(53, 224, 196, 0.035) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 

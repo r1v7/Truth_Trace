@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../auth'
 import { Mark } from '../components/Mark'
+import { ThemeToggle } from '../components/ThemeToggle'
 import { setLanguage, type Language } from '../i18n'
 
 export function LoginPage() {
@@ -83,6 +84,7 @@ export function LoginPage() {
           <button onClick={() => setLanguage(other)} className="tt-link">
             {t('nav.language')}
           </button>
+          <ThemeToggle compact />
         </div>
       </section>
 

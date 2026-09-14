@@ -5,7 +5,10 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { AuthProvider } from './auth'
 import './i18n'
+import { initTheme } from './theme'
 import './index.css'
+
+initTheme()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

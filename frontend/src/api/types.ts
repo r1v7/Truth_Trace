@@ -133,3 +133,24 @@ export interface Report {
   created_at: string
   items: ReportItem[]
 }
+
+export interface AuditEntry {
+  id: number
+  created_at: string
+  actor_id: number | null
+  actor_name: string | null
+  action: string
+  entity_type: string
+  entity_id: string | null
+  case_id: number | null
+  case_reference: string | null
+  ip_address: string | null
+  payload: Record<string, unknown>
+}
+
+export interface AuditPage {
+  total: number
+  offset: number
+  limit: number
+  entries: AuditEntry[]
+}
