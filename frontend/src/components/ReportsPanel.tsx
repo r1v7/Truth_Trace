@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next'
 
 import { api } from '../api/client'
 import type { Finding, Report, User } from '../api/types'
+import { Section } from './Section'
 
-const STATUS_TONE: Record<string, string> = {
-  draft: 'bg-slate-100 text-slate-700',
-  submitted: 'bg-blue-100 text-blue-800',
-  approved: 'bg-emerald-100 text-emerald-800',
-  returned: 'bg-amber-100 text-amber-900',
+const STATUS_COLOR: Record<string, string> = {
+  draft: 'var(--color-muted)',
+  submitted: 'var(--color-violet)',
+  approved: 'var(--color-accent)',
+  returned: 'var(--color-warn)',
 }
 
 interface Props {
@@ -83,19 +84,20 @@ export function ReportsPanel({ caseId, findings, user }: Props) {
   }
 
   return (
-    <section>
-      <h2 className="mb-3 font-semibold">{t('reports.title')}</h2>
-
+    <Section title={t('reports.title')}>
       {findings.length > 0 && (
-        <form onSubmit={create} className="mb-4 rounded border border-slate-200 bg-white p-3">
-          <p className="mb-2 text-sm text-slate-600">{t('reports.pickFindings')}</p>
-          <ul className="mb-3 max-h-48 space-y-1 overflow-y-auto">
+        <form onSubmit={create} className="mb-5">
+          <p className="mt-0 mb-3 text-[12px] leading-relaxed text-[var(--color-muted)]">
+            {t('reports.pickFindings')}
+          </p>
+
+          <ul className="mb-4 max-h-52 space-y-1.5 overflow-y-auto pe-1">
             {findings.map((finding) => (
               <li key={finding.id}>
-                <label className="flex items-start gap-2 text-sm">
+                <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-2)] p-2.5 text-[13px] hover:border-[var(--color-line-3)]">
                   <input
                     type="checkbox"
-                    className="mt-1"
+                    className="mt-1 accent-[var(--color-accent)]"
                     checked={selected.includes(finding.id)}
                     onChange={(e) =>
                       setSelected((previous) =>
@@ -105,99 +107,105 @@ export function ReportsPanel({ caseId, findings, user }: Props) {
                       )
                     }
                   />
-                  <span dir="auto">
-                    <span className="font-medium">{t(`findings.${finding.finding_type}`)}</span>
-                    {' — '}
-                    {finding.explanation}
+                  <span dir="auto" className="min-w-0">
+                    <span className="tt-mono text-[10.5px] uppercase tracking-[0.1em] text-[var(--color-muted)]">
+                      {t(`findings.${finding.finding_type}`)}
+                    </span>
+                    <span className="block text-[var(--color-ink-soft)]">
+                      {finding.explanation}
+                    </span>
                   </span>
                 </label>
               </li>
             ))}
           </ul>
 
-          <div className="flex flex-wrap items-end gap-2">
-            <label className="text-sm">
-              {t('reports.reportTitle')}
-              <input
-                name="title"
-                required
-                className="mt-1 block rounded border border-slate-300 px-2 py-1.5"
-              />
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="block">
+              <span className="tt-label mb-2 block">{t('reports.reportTitle')}</span>
+              <input name="title" required className="tt-field w-64" />
             </label>
-            <label className="text-sm grow">
-              {t('reports.summary')}
-              <input
-                name="summary"
-                className="mt-1 block w-full rounded border border-slate-300 px-2 py-1.5"
-              />
+            <label className="block grow">
+              <span className="tt-label mb-2 block">{t('reports.summary')}</span>
+              <input name="summary" className="tt-field" />
             </label>
-            <button
-              disabled={selected.length === 0}
-              className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white disabled:opacity-40"
-            >
+            <button disabled={selected.length === 0} className="tt-btn tt-btn-primary">
               {t('reports.create')} ({selected.length})
             </button>
           </div>
         </form>
       )}
 
-      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mb-3 text-[13px] text-[var(--color-danger)]">{error}</p>}
 
       {reports.length === 0 ? (
-        <p className="text-sm text-slate-500">{t('reports.empty')}</p>
+        <p className="m-0 text-[13px] text-[var(--color-muted)]">{t('reports.empty')}</p>
       ) : (
         <ul className="space-y-3">
           {reports.map((report) => {
             const editable = report.status === 'draft' || report.status === 'returned'
             const ownReport = report.prepared_by_id === user.id
+            const tone = STATUS_COLOR[report.status]
             return (
-              <li key={report.id} className="rounded border border-slate-200 bg-white p-4">
+              <li
+                key={report.id}
+                className="overflow-hidden rounded-xl border border-s-[3px] border-[var(--color-line)] bg-[var(--color-surface-2)] p-4"
+                style={{ borderInlineStartColor: tone }}
+              >
                 <div className="flex flex-wrap items-center gap-2">
-                  <span dir="auto" className="font-medium">
+                  <span dir="auto" className="font-semibold">
                     {report.title}
                   </span>
-                  <span className="text-xs text-slate-500">v{report.version}</span>
-                  <span className={`rounded px-2 py-0.5 text-xs ${STATUS_TONE[report.status]}`}>
+                  <span className="tt-mono text-[11px] text-[var(--color-muted-dim)]">
+                    v{report.version}
+                  </span>
+                  <span
+                    className="tt-tag"
+                    style={{
+                      color: tone,
+                      background: `color-mix(in srgb, ${tone} 13%, transparent)`,
+                    }}
+                  >
                     {t(`reportStatus.${report.status}`)}
                   </span>
-                  <span className="text-xs text-slate-500">
+                  <span className="tt-mono text-[11px] text-[var(--color-muted-dim)]">
                     {t('reports.itemCount', { count: report.items.length })}
                   </span>
                 </div>
 
                 {report.decision_note && (
-                  <p dir="auto" className="mt-2 text-sm text-slate-700">
-                    {t('reports.supervisorNote')}: {report.decision_note}
+                  <p dir="auto" className="mt-2 mb-0 text-[13px] text-[var(--color-ink-soft)]">
+                    <span className="tt-label">{t('reports.supervisorNote')}</span>{' '}
+                    {report.decision_note}
                   </p>
                 )}
 
                 {report.content_sha256 && (
-                  <p className="mt-2 break-all font-mono text-xs text-slate-400">
-                    {t('reports.contentDigest')} {report.content_sha256}
+                  <p className="tt-mono mt-2 mb-0 break-all text-[10.5px] text-[var(--color-muted-dim)]">
+                    <span className="tt-label">{t('reports.contentDigest')}</span>{' '}
+                    {report.content_sha256}
                   </p>
                 )}
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => open(report.id, 'preview')}
-                    className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-100"
+                    className="tt-btn tt-btn-ghost tt-btn-sm"
                   >
                     {t('reports.preview')}
                   </button>
 
-                  {editable && (
+                  {editable ? (
                     <button
                       onClick={() => act(`/reports/${report.id}/submit`)}
-                      className="rounded bg-slate-900 px-2 py-1 text-xs text-white"
+                      className="tt-btn tt-btn-primary tt-btn-sm"
                     >
                       {t('reports.submit')}
                     </button>
-                  )}
-
-                  {!editable && (
+                  ) : (
                     <button
                       onClick={() => open(report.id, 'pdf')}
-                      className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-100"
+                      className="tt-btn tt-btn-ghost tt-btn-sm"
                     >
                       {t('reports.pdf')}
                     </button>
@@ -209,21 +217,24 @@ export function ReportsPanel({ caseId, findings, user }: Props) {
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                         placeholder={t('reports.decisionNote')}
-                        className="rounded border border-slate-300 px-2 py-1 text-xs"
+                        className="tt-field w-56 py-1.5 text-[12px]"
                       />
                       <button
                         onClick={() =>
-                          act(`/reports/${report.id}/decision`, { approve: true, note: note || null })
+                          act(`/reports/${report.id}/decision`, {
+                            approve: true,
+                            note: note || null,
+                          })
                         }
-                        className="rounded bg-emerald-700 px-2 py-1 text-xs text-white"
+                        className="tt-btn tt-btn-sm"
+                        style={{ background: 'var(--color-accent)', color: 'var(--color-accent-ink)' }}
                       >
                         {t('reports.approve')}
                       </button>
                       <button
-                        onClick={() =>
-                          act(`/reports/${report.id}/decision`, { approve: false, note })
-                        }
-                        className="rounded bg-amber-700 px-2 py-1 text-xs text-white"
+                        onClick={() => act(`/reports/${report.id}/decision`, { approve: false, note })}
+                        className="tt-btn tt-btn-sm"
+                        style={{ background: 'var(--color-warn)', color: '#241700' }}
                       >
                         {t('reports.return')}
                       </button>
@@ -231,7 +242,7 @@ export function ReportsPanel({ caseId, findings, user }: Props) {
                   )}
 
                   {report.status === 'submitted' && ownReport && (
-                    <span className="self-center text-xs text-slate-500">
+                    <span className="self-center text-[12px] text-[var(--color-muted)]">
                       {t('reports.awaitingOther')}
                     </span>
                   )}
@@ -241,6 +252,6 @@ export function ReportsPanel({ caseId, findings, user }: Props) {
           })}
         </ul>
       )}
-    </section>
+    </Section>
   )
 }

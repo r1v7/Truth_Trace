@@ -3,6 +3,7 @@ import { Link, Outlet } from 'react-router-dom'
 
 import { useAuth } from '../auth'
 import { setLanguage, type Language } from '../i18n'
+import { Avatar, Mark } from './Mark'
 
 export function Layout() {
   const { t, i18n } = useTranslation()
@@ -11,36 +12,51 @@ export function Layout() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
-          <Link to="/cases" className="text-lg font-semibold text-slate-900">
+      <header
+        className="sticky top-0 z-10 flex min-h-[54px] flex-wrap items-center gap-4 border-b border-[var(--color-line)] px-5"
+        style={{ background: 'rgba(11,15,22,.92)', backdropFilter: 'blur(8px)' }}
+      >
+        <Link to="/cases" className="flex items-center gap-3 py-2 no-underline">
+          <Mark size={20} />
+          <span className="tt-wordmark text-[12px] font-bold uppercase tracking-[0.3em] text-[var(--color-ink)]">
             {t('app.name')}
-          </Link>
-          <span className="hidden text-sm text-slate-500 sm:inline">{t('app.tagline')}</span>
-          <div className="ms-auto flex items-center gap-3 text-sm">
-            <button
-              onClick={() => setLanguage(other)}
-              className="rounded border border-slate-300 px-2 py-1 text-slate-700 hover:bg-slate-100"
-            >
-              {t('nav.language')}
-            </button>
-            {user && (
-              <>
-                <span className="text-slate-600">{user.full_name}</span>
-                <button onClick={logout} className="text-slate-500 hover:text-slate-900">
-                  {t('nav.logout')}
-                </button>
-              </>
-            )}
-          </div>
+          </span>
+        </Link>
+
+        <div className="ms-auto flex items-center gap-3">
+          <button onClick={() => setLanguage(other)} className="tt-btn tt-btn-ghost tt-btn-sm">
+            {t('nav.language')}
+          </button>
+
+          {user && (
+            <>
+              <span className="tt-tag hidden sm:inline">{t(`role.${user.role}`)}</span>
+              <span className="flex items-center gap-2">
+                <Avatar name={user.full_name} />
+                <span className="hidden text-[13px] text-[var(--color-ink-soft)] sm:inline">
+                  {user.full_name}
+                </span>
+              </span>
+              <button
+                onClick={logout}
+                className="text-[12px] text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+              >
+                {t('nav.logout')}
+              </button>
+            </>
+          )}
         </div>
       </header>
 
-      <p className="bg-amber-50 px-4 py-2 text-center text-xs text-amber-900">
+      {/* The tool's limits belong in the chrome, not in a dialog someone dismisses once. */}
+      <p
+        className="border-b border-[var(--color-line)] px-5 py-2 text-center text-[12px] leading-relaxed text-[var(--color-muted)]"
+        style={{ background: 'rgba(53,224,196,.04)' }}
+      >
         {t('app.disclaimer')}
       </p>
 
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main className="mx-auto max-w-6xl px-5 py-7">
         <Outlet />
       </main>
     </div>

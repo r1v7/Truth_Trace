@@ -5,7 +5,7 @@
     "disclaimer": "Truth Trace highlights differences between statements. It does not determine guilt. Every result must be reviewed by the investigator."
   },
   "nav": {
-    "cases": "Cases",
+    "cases": "cases",
     "logout": "Sign out",
     "language": "العربية"
   },
@@ -14,7 +14,15 @@
     "email": "Email",
     "password": "Password",
     "submit": "Sign in",
-    "error": "Incorrect email or password"
+    "error": "Incorrect email or password",
+    "eyebrow": "Statement forensics",
+    "headlineTop": "Two accounts.\nOne timeline.",
+    "headlineAccent": "Every difference traced to the words.",
+    "blurb": "The engine links what two interviews say about the same moment and shows you where they part. It never returns a verdict. That part is yours.",
+    "version": "api 0.1.0 · engine 0.1.0",
+    "online": "online",
+    "auditNote": "Every access is written to the audit trail.",
+    "lockedOut": "Locked out? Your case administrator can reset access. Failed attempts are recorded."
   },
   "cases": {
     "title": "Cases",
@@ -25,7 +33,17 @@
     "status": "Status",
     "created": "Created",
     "empty": "No cases yet. Create the first one.",
-    "create": "Create case"
+    "create": "Create case",
+    "eyebrow": "Caseload",
+    "headline": "Where the accounts diverge",
+    "subhead": "Cases you own or are a member of.",
+    "search": "Search reference or title",
+    "all": "All",
+    "statActive": "Open cases",
+    "statReview": "Under review",
+    "statTotal": "All cases",
+    "noMatches": "No cases match this filter.",
+    "shown": "{{shown}} / {{total}} shown"
   },
   "status": {
     "open": "Open",
@@ -48,7 +66,8 @@
     "run": "Run comparison",
     "runs": "Previous comparisons",
     "noInterviews": "Add at least two interviews with the same subject to compare them.",
-    "claims": "{{count}} claims"
+    "claims": "{{count}} claims",
+    "sameSubjectOnly": "only same-subject pairs are comparable"
   },
   "findings": {
     "title": "Results",
@@ -72,7 +91,9 @@
     "empty": "No results for this filter.",
     "vsInterview": "Interview vs interview",
     "vsEvidence": "Statement vs evidence",
-    "statementSide": "Statement"
+    "statementSide": "Statement",
+    "linkScore": "link",
+    "unreviewed": "unreviewed"
   },
   "field": {
     "time": "Time",
@@ -92,7 +113,8 @@
     "check": "Check against statement",
     "pickInterview": "Choose an interview…",
     "empty": "No evidence uploaded yet.",
-    "evidenceSide": "Evidence"
+    "evidenceSide": "Evidence",
+    "hashNote": "hashed on upload · verify before use"
   },
   "evidenceKind": {
     "call_log": "Call log",
@@ -131,6 +153,11 @@
     "submitted": "Submitted",
     "approved": "Approved",
     "returned": "Returned"
+  },
+  "role": {
+    "investigator": "investigator",
+    "supervisor": "supervisor",
+    "admin": "admin"
   },
   "common": {
     "cancel": "Cancel",

@@ -10,7 +10,7 @@ import { LoginPage } from './pages/LoginPage'
 function Protected({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
   const { t } = useTranslation()
-  if (loading) return <p className="p-6 text-slate-500">{t('common.loading')}</p>
+  if (loading) return <p className="tt-mono p-6 text-[var(--color-muted)]">{t('common.loading')}</p>
   return user ? <>{children}</> : <Navigate to="/login" replace />
 }
 

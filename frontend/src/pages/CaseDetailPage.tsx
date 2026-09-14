@@ -1,16 +1,31 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
-
-import { useAuth } from '../auth'
+import { Link, useParams } from 'react-router-dom'
 
 import { api } from '../api/client'
 import type { AnalysisRun, Case, Finding, FindingType, Interview, Statement } from '../api/types'
+import { useAuth } from '../auth'
 import { EvidencePanel } from '../components/EvidencePanel'
 import { FindingCard } from '../components/FindingCard'
+import { Avatar } from '../components/Mark'
 import { ReportsPanel } from '../components/ReportsPanel'
+import { Section } from '../components/Section'
 
 const FILTERS: (FindingType | 'all')[] = ['all', 'possible_conflict', 'unclear', 'missing', 'match']
+
+const FILTER_COLOR: Record<FindingType, string> = {
+  possible_conflict: 'var(--color-danger)',
+  unclear: 'var(--color-warn)',
+  missing: 'var(--color-violet)',
+  match: 'var(--color-accent)',
+}
+
+const CASE_STATUS_COLOR: Record<string, string> = {
+  open: 'var(--color-accent)',
+  under_review: 'var(--color-warn)',
+  closed: 'var(--color-muted)',
+  archived: 'var(--color-muted-dim)',
+}
 
 export function CaseDetailPage() {
   const { t } = useTranslation()
@@ -49,26 +64,41 @@ export function CaseDetailPage() {
     })
   }, [caseId, loadInterviews])
 
+  function reportError(err: unknown) {
+    const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+    setError(typeof detail === 'string' ? detail : t('common.error'))
+  }
+
   async function addInterview(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const element = event.currentTarget
     const form = new FormData(element)
-    await api.post(`/cases/${caseId}/interviews`, {
-      subject_name: form.get('subject_name'),
-      session_label: form.get('session_label'),
-      interviewed_on: form.get('interviewed_on') || null,
-    })
-    element.reset()
-    await loadInterviews()
+    setError(null)
+    try {
+      await api.post(`/cases/${caseId}/interviews`, {
+        subject_name: form.get('subject_name'),
+        session_label: form.get('session_label'),
+        interviewed_on: form.get('interviewed_on') || null,
+      })
+      element.reset()
+      await loadInterviews()
+    } catch (err) {
+      reportError(err)
+    }
   }
 
   async function addStatement(interviewId: number, event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const element = event.currentTarget
     const form = new FormData(element)
-    await api.post(`/interviews/${interviewId}/statements`, { body: form.get('body') })
-    element.reset()
-    await loadInterviews()
+    setError(null)
+    try {
+      await api.post(`/interviews/${interviewId}/statements`, { body: form.get('body') })
+      element.reset()
+      await loadInterviews()
+    } catch (err) {
+      reportError(err)
+    }
   }
 
   async function compare(event: FormEvent) {
@@ -81,77 +111,102 @@ export function CaseDetailPage() {
       })
       setRun(data)
     } catch (err) {
-      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-      setError(typeof detail === 'string' ? detail : t('common.error'))
+      reportError(err)
     }
   }
 
   const findings: Finding[] = run?.findings ?? []
   const visible = filter === 'all' ? findings : findings.filter((f) => f.finding_type === filter)
 
-  if (!kase) return <p className="text-slate-500">{t('common.loading')}</p>
+  if (!kase) {
+    return <p className="tt-mono text-[var(--color-muted)]">{t('common.loading')}</p>
+  }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="font-mono text-xs text-slate-500">{kase.reference}</p>
-        <h1 dir="auto" className="text-xl font-semibold">{kase.title}</h1>
+    <div className="space-y-6">
+      <div className="tt-rise">
+        <nav className="tt-breadcrumb mb-3 flex items-center gap-2">
+          <Link to="/cases" className="tt-link">
+            {t('nav.cases')}
+          </Link>
+          <span>/</span>
+          <span className="tt-mono">{kase.reference}</span>
+        </nav>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 dir="auto" className="m-0 text-[28px] font-semibold tracking-[-0.02em]">
+            {kase.title}
+          </h1>
+          <span
+            className="tt-tag"
+            style={{
+              color: CASE_STATUS_COLOR[kase.status],
+              background: 'color-mix(in srgb, currentColor 12%, transparent)',
+            }}
+          >
+            {t(`status.${kase.status}`)}
+          </span>
+        </div>
+
         {kase.description && (
-          <p dir="auto" className="mt-1 text-sm text-slate-600">
+          <p dir="auto" className="mt-2 mb-0 max-w-3xl text-[var(--color-muted)]">
             {kase.description}
           </p>
         )}
       </div>
 
-      <section>
-        <h2 className="mb-3 font-semibold">{t('case.interviews')}</h2>
+      {error && (
+        <p className="tt-card m-0 border-[var(--color-danger)] px-4 py-3 text-[13px] text-[var(--color-danger)]">
+          {error}
+        </p>
+      )}
 
-        <form
-          onSubmit={addInterview}
-          className="mb-4 flex flex-wrap items-end gap-2 rounded border border-slate-200 bg-white p-3"
-        >
-          <label className="text-sm">
-            {t('case.subject')}
-            <input
-              name="subject_name"
-              required
-              className="mt-1 block rounded border border-slate-300 px-2 py-1.5"
-            />
+      <Section title={t('case.interviews')} aside={t('case.sameSubjectOnly')}>
+        <form onSubmit={addInterview} className="mb-5 flex flex-wrap items-end gap-3">
+          <label className="block">
+            <span className="tt-label mb-2 block">{t('case.subject')}</span>
+            <input name="subject_name" required className="tt-field w-48" />
           </label>
-          <label className="text-sm">
-            {t('case.session')}
-            <input
-              name="session_label"
-              required
-              className="mt-1 block rounded border border-slate-300 px-2 py-1.5"
-            />
+          <label className="block">
+            <span className="tt-label mb-2 block">{t('case.session')}</span>
+            <input name="session_label" required className="tt-field w-40" />
           </label>
-          <label className="text-sm">
-            {t('case.date')}
-            <input
-              name="interviewed_on"
-              type="date"
-              className="mt-1 block rounded border border-slate-300 px-2 py-1.5"
-            />
+          <label className="block">
+            <span className="tt-label mb-2 block">{t('case.date')}</span>
+            <input name="interviewed_on" type="date" className="tt-field w-44" />
           </label>
-          <button className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white">
-            {t('case.newInterview')}
-          </button>
+          <button className="tt-btn tt-btn-ghost">{t('case.newInterview')}</button>
         </form>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {interviews.map((interview) => (
-            <div key={interview.id} className="rounded border border-slate-200 bg-white p-4">
-              <p dir="auto" className="font-medium">
-                {interview.subject_name} — {interview.session_label}
-              </p>
-              <p className="mb-2 text-xs text-slate-500">{interview.interviewed_on ?? ''}</p>
+            <div
+              key={interview.id}
+              className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-2)] p-4"
+            >
+              <div className="flex items-center gap-3">
+                <Avatar name={interview.subject_name} tone="violet" />
+                <div className="min-w-0">
+                  <p dir="auto" className="m-0 font-semibold">
+                    {interview.subject_name}
+                  </p>
+                  <p className="tt-mono m-0 text-[11px] text-[var(--color-muted)]">
+                    {interview.session_label}
+                    {interview.interviewed_on ? ` · ${interview.interviewed_on}` : ''}
+                  </p>
+                </div>
+              </div>
 
-              <ul className="mb-3 space-y-2">
+              <ul className="my-3 space-y-2">
                 {(statements[interview.id] ?? []).map((s) => (
-                  <li key={s.id} className="rounded bg-slate-50 p-2 text-sm">
-                    <p dir="auto" className="whitespace-pre-wrap">{s.body}</p>
-                    <p className="mt-1 text-xs text-slate-400">
+                  <li
+                    key={s.id}
+                    className="rounded-lg border border-[var(--color-line)] bg-[var(--color-page)] p-3"
+                  >
+                    <p dir="auto" className="m-0 whitespace-pre-wrap text-[13px]">
+                      {s.body}
+                    </p>
+                    <p className="tt-mono mt-2 mb-0 text-[10.5px] text-[var(--color-muted-dim)]">
                       {t('case.claims', { count: s.claims.length })}
                     </p>
                   </li>
@@ -164,34 +219,32 @@ export function CaseDetailPage() {
                   required
                   rows={3}
                   placeholder={t('case.statementBody')}
-                  className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+                  className="tt-field resize-y text-[13px]"
                 />
-                <button className="mt-2 rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-100">
+                <button className="tt-btn tt-btn-ghost tt-btn-sm mt-2">
                   {t('case.addStatement')}
                 </button>
               </form>
             </div>
           ))}
         </div>
-      </section>
+      </Section>
 
-      <section>
-        <h2 className="mb-3 font-semibold">{t('case.compare')}</h2>
+      <Section title={t('case.compare')}>
         {interviews.length < 2 ? (
-          <p className="text-sm text-slate-500">{t('case.noInterviews')}</p>
+          <p className="m-0 text-[13px] text-[var(--color-muted)]">{t('case.noInterviews')}</p>
         ) : (
-          <form
-            onSubmit={compare}
-            className="flex flex-wrap items-end gap-2 rounded border border-slate-200 bg-white p-3"
-          >
+          <form onSubmit={compare} className="flex flex-wrap items-end gap-3">
             {(['a', 'b'] as const).map((side) => (
-              <label key={side} className="text-sm">
-                {t(side === 'a' ? 'case.interviewA' : 'case.interviewB')}
+              <label key={side} className="block">
+                <span className="tt-label mb-2 block">
+                  {t(side === 'a' ? 'case.interviewA' : 'case.interviewB')}
+                </span>
                 <select
                   required
                   value={pair[side]}
                   onChange={(e) => setPair({ ...pair, [side]: e.target.value })}
-                  className="mt-1 block rounded border border-slate-300 px-2 py-1.5"
+                  className="tt-field w-56"
                 >
                   <option value="">—</option>
                   {interviews.map((i) => (
@@ -202,54 +255,47 @@ export function CaseDetailPage() {
                 </select>
               </label>
             ))}
-            <button className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white">
-              {t('case.run')}
-            </button>
-            {error && <p className="w-full text-sm text-red-600">{error}</p>}
+            <button className="tt-btn tt-btn-primary">{t('case.run')}</button>
           </form>
         )}
-      </section>
+      </Section>
 
       <EvidencePanel caseId={caseId!} interviews={interviews} onRun={setRun} />
 
-      {user && <ReportsPanel caseId={caseId!} findings={findings} user={user} />}
-
       {run && (
-        <section>
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <h2 className="font-semibold">{t('findings.title')}</h2>
-            <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+        <Section
+          title={t('findings.title')}
+          aside={`${run.analyzer_backend} ${run.analyzer_version}`}
+        >
+          <div className="mb-4 flex flex-wrap items-center gap-1.5">
+            <span className="tt-tag me-1">
               {t(run.kind === 'evidence' ? 'findings.vsEvidence' : 'findings.vsInterview')}
             </span>
-            <span className="text-xs text-slate-500">
-              {t('findings.engine')}: {run.analyzer_backend} {run.analyzer_version}
-            </span>
-            <div className="ms-auto flex flex-wrap gap-1">
-              {FILTERS.map((value) => (
+            {FILTERS.map((value) => {
+              const count =
+                value === 'all'
+                  ? findings.length
+                  : findings.filter((f) => f.finding_type === value).length
+              return (
                 <button
                   key={value}
                   onClick={() => setFilter(value)}
-                  className={`rounded border px-2 py-1 text-xs ${
-                    filter === value
-                      ? 'border-slate-900 bg-slate-900 text-white'
-                      : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
-                  }`}
+                  className={`tt-chip ${filter === value ? 'tt-chip-on' : ''}`}
+                  style={
+                    filter !== value && value !== 'all' && count > 0
+                      ? { color: FILTER_COLOR[value] }
+                      : undefined
+                  }
                 >
-                  {t(value === 'all' ? 'findings.all' : `findings.${value}`)}
-                  {value !== 'all' && (
-                    <span className="ms-1 opacity-70">
-                      {findings.filter((f) => f.finding_type === value).length}
-                    </span>
-                  )}
+                  {value === 'all' ? t('findings.all') : t(`findings.${value}`)}
+                  <span className="tt-mono ms-1.5 opacity-70">{count}</span>
                 </button>
-              ))}
-            </div>
+              )
+            })}
           </div>
 
-          <p className="mb-3 text-xs text-slate-500">{t('findings.scoreHint')}</p>
-
           {visible.length === 0 ? (
-            <p className="text-sm text-slate-500">{t('findings.empty')}</p>
+            <p className="m-0 text-[13px] text-[var(--color-muted)]">{t('findings.empty')}</p>
           ) : (
             <ul className="space-y-3">
               {visible.map((f) => (
@@ -257,8 +303,14 @@ export function CaseDetailPage() {
               ))}
             </ul>
           )}
-        </section>
+
+          <p className="mt-4 mb-0 text-[12px] leading-relaxed text-[var(--color-muted-dim)]">
+            {t('findings.scoreHint')}
+          </p>
+        </Section>
       )}
+
+      {user && <ReportsPanel caseId={caseId!} findings={findings} user={user} />}
     </div>
   )
 }

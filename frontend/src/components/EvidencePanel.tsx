@@ -2,20 +2,15 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { api } from '../api/client'
-import type {
-  AnalysisRun,
-  Evidence,
-  EvidenceKind,
-  Integrity,
-  Interview,
-} from '../api/types'
+import type { AnalysisRun, Evidence, EvidenceKind, Integrity, Interview } from '../api/types'
+import { Section } from './Section'
 
 const KINDS: EvidenceKind[] = ['call_log', 'message_log', 'transcript', 'document', 'other']
 
-const INTEGRITY_TONE: Record<string, string> = {
-  verified: 'bg-emerald-100 text-emerald-800',
-  altered: 'bg-red-100 text-red-800',
-  missing_file: 'bg-amber-100 text-amber-800',
+const INTEGRITY_COLOR: Record<string, string> = {
+  verified: 'var(--color-accent)',
+  altered: 'var(--color-danger)',
+  missing_file: 'var(--color-warn)',
 }
 
 function formatSize(bytes: number) {
@@ -98,29 +93,20 @@ export function EvidencePanel({ caseId, interviews, onRun }: Props) {
   }
 
   return (
-    <section>
-      <h2 className="mb-3 font-semibold">{t('evidence.title')}</h2>
-
-      <form
-        onSubmit={upload}
-        className="mb-4 flex flex-wrap items-end gap-2 rounded border border-slate-200 bg-white p-3"
-      >
-        <label className="text-sm">
-          {t('evidence.file')}
+    <Section title={t('evidence.title')} aside={t('evidence.hashNote')}>
+      <form onSubmit={upload} className="mb-5 flex flex-wrap items-end gap-3">
+        <label className="block">
+          <span className="tt-label mb-2 block">{t('evidence.file')}</span>
           <input
             type="file"
             name="file"
             required
-            className="mt-1 block max-w-xs text-sm file:me-2 file:rounded file:border file:border-slate-300 file:bg-slate-50 file:px-2 file:py-1"
+            className="tt-field max-w-xs text-[12px] file:me-3 file:rounded file:border-0 file:bg-[var(--color-raised)] file:px-2 file:py-1 file:text-[var(--color-ink-soft)]"
           />
         </label>
-        <label className="text-sm">
-          {t('evidence.kind')}
-          <select
-            name="kind"
-            defaultValue="other"
-            className="mt-1 block rounded border border-slate-300 px-2 py-1.5"
-          >
+        <label className="block">
+          <span className="tt-label mb-2 block">{t('evidence.kind')}</span>
+          <select name="kind" defaultValue="other" className="tt-field w-44">
             {KINDS.map((kind) => (
               <option key={kind} value={kind}>
                 {t(`evidenceKind.${kind}`)}
@@ -128,42 +114,45 @@ export function EvidencePanel({ caseId, interviews, onRun }: Props) {
             ))}
           </select>
         </label>
-        <label className="text-sm">
-          {t('evidence.description')}
-          <input
-            name="description"
-            className="mt-1 block rounded border border-slate-300 px-2 py-1.5"
-          />
+        <label className="block grow">
+          <span className="tt-label mb-2 block">{t('evidence.description')}</span>
+          <input name="description" className="tt-field" />
         </label>
-        <button
-          disabled={busy}
-          className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white disabled:opacity-50"
-        >
+        <button disabled={busy} className="tt-btn tt-btn-ghost">
           {busy ? t('common.loading') : t('evidence.upload')}
         </button>
       </form>
 
-      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mb-3 text-[13px] text-[var(--color-danger)]">{error}</p>}
 
       {items.length === 0 ? (
-        <p className="text-sm text-slate-500">{t('evidence.empty')}</p>
+        <p className="m-0 text-[13px] text-[var(--color-muted)]">{t('evidence.empty')}</p>
       ) : (
         <ul className="space-y-3">
           {items.map((item) => {
             const state = integrity[item.id]
+            const tone = state ? INTEGRITY_COLOR[state.status] : undefined
             return (
-              <li key={item.id} className="rounded border border-slate-200 bg-white p-4">
+              <li
+                key={item.id}
+                className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-2)] p-4"
+                style={tone ? { borderColor: `color-mix(in srgb, ${tone} 45%, transparent)` } : undefined}
+              >
                 <div className="flex flex-wrap items-center gap-2">
-                  <span dir="auto" className="font-medium">
+                  <span dir="auto" className="tt-mono font-medium text-[var(--color-ink)]">
                     {item.original_filename}
                   </span>
-                  <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                    {t(`evidenceKind.${item.kind}`)}
+                  <span className="tt-tag">{t(`evidenceKind.${item.kind}`)}</span>
+                  <span className="tt-mono text-[11px] text-[var(--color-muted-dim)]">
+                    {formatSize(item.size_bytes)}
                   </span>
-                  <span className="text-xs text-slate-500">{formatSize(item.size_bytes)}</span>
                   {state && (
                     <span
-                      className={`rounded px-2 py-0.5 text-xs ${INTEGRITY_TONE[state.status]}`}
+                      className="tt-tag"
+                      style={{
+                        color: tone,
+                        background: `color-mix(in srgb, ${tone} 13%, transparent)`,
+                      }}
                     >
                       {t(`integrity.${state.status}`)}
                     </span>
@@ -171,25 +160,30 @@ export function EvidencePanel({ caseId, interviews, onRun }: Props) {
                 </div>
 
                 {item.description && (
-                  <p dir="auto" className="mt-1 text-sm text-slate-600">
+                  <p dir="auto" className="mt-1.5 mb-0 text-[13px] text-[var(--color-muted)]">
                     {item.description}
                   </p>
                 )}
 
-                <p className="mt-2 break-all font-mono text-xs text-slate-400">
-                  SHA-256 {item.sha256}
+                <p className="tt-mono mt-2 mb-0 break-all text-[10.5px] text-[var(--color-muted-dim)]">
+                  <span className="tt-label">sha-256</span> {item.sha256}
                 </p>
 
                 {state && (
-                  <p className="mt-1 text-xs text-slate-500">
-                    {state.status === 'verified' ? t('integrity.verifiedNote') : t('integrity.alteredNote')}
+                  <p
+                    className="mt-2 mb-0 text-[12px] leading-relaxed"
+                    style={{ color: state.status === 'verified' ? 'var(--color-muted)' : tone }}
+                  >
+                    {state.status === 'verified'
+                      ? t('integrity.verifiedNote')
+                      : t('integrity.alteredNote')}
                   </p>
                 )}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => verify(item.id)}
-                    className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-100"
+                    className="tt-btn tt-btn-ghost tt-btn-sm"
                   >
                     {t('evidence.verify')}
                   </button>
@@ -197,7 +191,7 @@ export function EvidencePanel({ caseId, interviews, onRun }: Props) {
                   <select
                     value={target[item.id] ?? ''}
                     onChange={(e) => setTarget({ ...target, [item.id]: e.target.value })}
-                    className="rounded border border-slate-300 px-2 py-1 text-xs"
+                    className="tt-field w-52 py-1.5 text-[12px]"
                   >
                     <option value="">{t('evidence.pickInterview')}</option>
                     {interviews.map((interview) => (
@@ -209,7 +203,7 @@ export function EvidencePanel({ caseId, interviews, onRun }: Props) {
                   <button
                     onClick={() => check(item.id)}
                     disabled={!target[item.id]}
-                    className="rounded bg-slate-900 px-2 py-1 text-xs text-white disabled:opacity-40"
+                    className="tt-btn tt-btn-primary tt-btn-sm"
                   >
                     {t('evidence.check')}
                   </button>
@@ -219,6 +213,6 @@ export function EvidencePanel({ caseId, interviews, onRun }: Props) {
           })}
         </ul>
       )}
-    </section>
+    </Section>
   )
 }

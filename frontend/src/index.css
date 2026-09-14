@@ -1,15 +1,324 @@
 @import "tailwindcss";
 
+/* Space Grotesk carries no Arabic, so an Arabic face is loaded alongside it and put
+   first in the RTL stack. Both have real system fallbacks: the app must stay usable
+   on a machine with no route to the font CDN. */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap");
+
+@theme {
+  --color-ink: #e6ecf5;
+  --color-ink-soft: #c8d3e2;
+  --color-muted: #8a97ad;
+  --color-muted-dim: #6b7a93;
+
+  --color-page: #080b11;
+  --color-surface: #0d131c;
+  --color-surface-2: #101724;
+  --color-raised: #161d2b;
+
+  --color-line: #1b2331;
+  --color-line-2: #232c3d;
+  --color-line-3: #2b3547;
+
+  --color-accent: #35e0c4;
+  --color-accent-hi: #6ff0dc;
+  --color-accent-ink: #05201c;
+
+  --color-danger: #ff6b5e;
+  --color-danger-soft: #ffa79d;
+  --color-warn: #ffb03a;
+  --color-warn-soft: #ffd399;
+  --color-violet: #9b8cff;
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+}
+
+html {
+  background: var(--color-page);
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  /* Faint survey grid: this is a forensic tool, and the grid says so quietly. */
+  background-color: var(--color-page);
+  background-image:
+    linear-gradient(rgba(53, 224, 196, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(53, 224, 196, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
-/* Arabic needs a taller line box than the Latin default. */
-[dir="rtl"] body,
-[dir="rtl"] {
+/* Arabic needs its own face and a taller line box than the Latin default. */
+[dir="rtl"] body {
+  font-family: "IBM Plex Sans Arabic", "Segoe UI", system-ui, sans-serif;
   line-height: 1.85;
+}
+
+::placeholder {
+  color: var(--color-muted);
+}
+
+::selection {
+  background: rgba(53, 224, 196, 0.25);
+}
+
+@keyframes tt-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tt-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tt-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes tt-halo {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes tt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001s !important;
+  }
+}
+
+@layer components {
+  .tt-rise {
+    animation: tt-rise 0.45s ease both;
+  }
+
+  .tt-fade {
+    animation: tt-fade 0.4s ease both;
+  }
+
+  /* A small-caps mono label. Used for every field name and section heading, so data
+     and its labels never look like the same kind of text. */
+  .tt-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .tt-mono {
+    font-family: var(--font-mono);
+  }
+
+  .tt-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+  }
+
+  .tt-field {
+    width: 100%;
+    padding: 10px 13px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line-2);
+    border-radius: 8px;
+    color: var(--color-ink);
+    transition: border-color 0.15s ease;
+  }
+
+  .tt-field:focus {
+    border-color: var(--color-accent);
+    outline: none;
+  }
+
+  .tt-field:disabled {
+    opacity: 0.5;
+  }
+
+  .tt-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .tt-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .tt-btn-primary {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    border: none;
+    font-weight: 700;
+  }
+
+  .tt-btn-primary:not(:disabled):hover {
+    background: var(--color-accent-hi);
+  }
+
+  .tt-btn-ghost {
+    background: transparent;
+    color: var(--color-ink);
+    border: 1px solid var(--color-line-2);
+  }
+
+  .tt-btn-ghost:not(:disabled):hover {
+    border-color: var(--color-line-3);
+    background: var(--color-raised);
+  }
+
+  .tt-btn-sm {
+    padding: 6px 11px;
+    font-size: 12px;
+  }
+
+  /* Pill filters, as on the caseload and results screens. */
+  .tt-chip {
+    padding: 7px 13px;
+    border-radius: 20px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    color: var(--color-muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .tt-chip:hover {
+    color: var(--color-ink);
+    border-color: var(--color-line-3);
+  }
+
+  .tt-chip-on {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-weight: 600;
+  }
+
+  .tt-chip-on:hover {
+    color: var(--color-accent-ink);
+  }
+
+  /* A status word, not a button: mono, boxed, never clickable-looking. */
+  .tt-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 5px;
+    background: var(--color-raised);
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .tt-link {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .tt-link:hover {
+    color: var(--color-accent-hi);
+    text-decoration: underline;
+  }
+
+  /* The meter grows from the reading start, which flips with direction. */
+  .tt-bar {
+    transform-origin: left;
+  }
+
+  [dir="rtl"] .tt-bar {
+    transform-origin: right;
+  }
+
+  .tt-breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--color-muted-dim);
+  }
+
+  /* Arabic is a connected script: letter-spacing pulls the joins apart and makes a word
+     read as loose glyphs. The Latin small-caps label treatment therefore does not carry
+     over — in RTL these become plain text at a readable size.
+     Monospace is kept for identifiers (hashes, references, dates), with an Arabic face
+     behind it so Arabic words in the same run still shape correctly. */
+  [dir="rtl"] .tt-label,
+  [dir="rtl"] .tt-wordmark {
+    font-family: "IBM Plex Sans Arabic", "Segoe UI", system-ui, sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 11.5px;
+  }
+
+  [dir="rtl"] .tt-wordmark {
+    font-size: 13px;
+  }
+
+  [dir="rtl"] .tt-mono {
+    font-family: "JetBrains Mono", "IBM Plex Sans Arabic", ui-monospace, monospace;
+    letter-spacing: 0;
+  }
+
+  /* Tags and breadcrumb words hold words, never identifiers, so in RTL they take the
+     text face; a Latin identifier inside opts back into mono with .tt-mono. */
+  [dir="rtl"] .tt-breadcrumb,
+  [dir="rtl"] .tt-tag {
+    font-family: "IBM Plex Sans Arabic", "Segoe UI", system-ui, sans-serif;
+    letter-spacing: 0;
+    font-size: 11px;
+  }
 }
