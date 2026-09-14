@@ -99,8 +99,19 @@ _HOUR_RE = re.compile(
     r"\b(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)\b|\b(\d{1,2}):(\d{2})\b",
     re.IGNORECASE,
 )
+# Minutes as people actually say them: "ten past eight", "twenty-five past six".
+_MINUTE_WORDS = {
+    "five": 5,
+    "ten": 10,
+    "quarter": 15,
+    "twenty": 20,
+    "twenty-five": 25,
+    "twenty five": 25,
+    "half": 30,
+}
+
 _WORD_TIME_RE = re.compile(
-    r"\b(?:(half|quarter)\s+(past|to)\s+)?"
+    r"\b(?:(half|quarter|twenty[- ]five|twenty|five|ten|\d{1,2})\s+(past|to)\s+)?"
     r"\b(" + "|".join(_NUMBER_WORDS) + r")\b"
     r"(?:\s*(?:o'?clock))?"
     r"(?:\s*(?:in\s+the\s+|at\s+)?(morning|afternoon|evening|night|a\.?m\.?|p\.?m\.?))?",
@@ -159,11 +170,14 @@ def extract_times(text: str) -> set[int]:
             times.add(value)
 
     for m in _WORD_TIME_RE.finditer(text):
-        fraction, direction, word, meridiem = m.groups()
+        offset_text, direction, word, meridiem = m.groups()
         hour = _NUMBER_WORDS[word.lower()]
         minute = 0
-        if fraction:
-            offset = 30 if fraction.lower() == "half" else 15
+        if offset_text:
+            key = offset_text.lower()
+            offset = _MINUTE_WORDS.get(key, int(key) if key.isdigit() else None)
+            if offset is None or not 0 < offset < 60:
+                continue
             if direction.lower() == "past":
                 minute = offset
             else:

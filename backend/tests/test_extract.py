@@ -11,6 +11,9 @@ from app.analysis import extract as ex
         ("I arrived at 20:00.", 20 * 60),
         ("I got there at eight in the evening.", 20 * 60),
         ("It was half past eight in the evening.", 20 * 60 + 30),
+        ("I left at ten past eight in the evening.", 20 * 60 + 10),
+        ("I left at twenty-five past six in the morning.", 6 * 60 + 25),
+        ("I left at five to ten in the evening.", 21 * 60 + 55),
         ("I left at quarter to nine in the evening.", 20 * 60 + 45),
         ("I was home at midnight.", 0),
     ],
@@ -21,6 +24,11 @@ def test_time_normalisation(text, expected):
 
 def test_bare_number_word_is_not_a_time():
     assert ex.extract_times("There were three people with me.") == set()
+
+
+def test_a_count_before_past_is_not_a_time():
+    """'ten people past the gate' counts people, it does not tell the time."""
+    assert ex.extract_times("There were ten people past the gate.") == set()
 
 
 def test_place_aliases_collapse():

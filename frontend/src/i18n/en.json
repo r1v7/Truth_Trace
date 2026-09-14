@@ -159,6 +159,10 @@
     "supervisor": "supervisor",
     "admin": "admin"
   },
+  "waking": {
+    "title": "Waking the demo server…",
+    "detail": "The free tier sleeps when idle; the first request takes up to a minute."
+  },
   "common": {
     "cancel": "Cancel",
     "save": "Save",

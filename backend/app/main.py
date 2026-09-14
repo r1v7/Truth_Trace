@@ -39,6 +39,16 @@ async def lifespan(app: FastAPI):
         bootstrap_admin()
     except Exception:  # noqa: BLE001 - never block startup on bootstrap
         log.exception("Bootstrap admin skipped")
+
+    if settings.seed_demo:
+        # The demo host has an ephemeral disk, so this runs on every cold start; the
+        # seeder is idempotent and does nothing once the demo case exists.
+        try:
+            from app.seed_demo import seed
+
+            seed()
+        except Exception:  # noqa: BLE001 - a failed seed must not take the API down
+            log.exception("Demo seed skipped")
     yield
 
 

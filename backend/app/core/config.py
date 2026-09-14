@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     model_cache_dir: str = "/models"
     similarity_link_threshold: float = 0.55
 
+    # Demo deployment: seed a sample case on first start (public demo only).
+    seed_demo: bool = False
+
     # Evidence storage
     evidence_dir: str = "/storage/evidence"
     max_evidence_mb: int = 50

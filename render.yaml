@@ -1,0 +1,64 @@
+# Render blueprint for the public demo API.
+#
+# The database is deliberately NOT declared here. Render's free Postgres is deleted
+# after 30 days, which would kill the demo link some time after it is handed out;
+# point DATABASE_* at a Neon (or equivalent) free database instead and set the values
+# below in the Render dashboard.
+#
+# The web service still sleeps after 15 minutes idle on the free plan, so the first
+# request can take up to a minute. The interface shows a "waking the server" banner
+# for exactly that reason, and .github/workflows/keep-warm.yml pings it on a schedule.
+
+services:
+  - type: web
+    name: truth-trace-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    # Migrations run on boot so a fresh database is usable without a shell.
+    dockerCommand: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PORT
+        value: 8000
+
+      # Set these in the dashboard from your Neon connection string.
+      - key: POSTGRES_HOST
+        sync: false
+      - key: POSTGRES_PORT
+        value: 5432
+      - key: POSTGRES_DB
+        sync: false
+      - key: POSTGRES_USER
+        sync: false
+      - key: POSTGRES_PASSWORD
+        sync: false
+
+      # Generated once by Render and kept; rotating it signs everyone out.
+      - key: JWT_SECRET
+        generateValue: true
+
+      # The demo is public: these credentials will be known. Never reuse them.
+      - key: FIRST_ADMIN_EMAIL
+        sync: false
+      - key: FIRST_ADMIN_PASSWORD
+        sync: false
+
+      - key: SEED_DEMO
+        value: "true"
+
+      # The GitHub Pages origin, e.g. https://<user>.github.io
+      - key: CORS_ORIGINS
+        sync: false
+
+      - key: ANALYZER_BACKEND
+        value: lexical
+
+      # Free instances have no persistent disk: uploaded evidence does not survive a
+      # restart, and the integrity check will correctly report the file as missing.
+      - key: EVIDENCE_DIR
+        value: /tmp/evidence
