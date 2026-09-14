@@ -2,16 +2,20 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 
+import { useAuth } from '../auth'
+
 import { api } from '../api/client'
 import type { AnalysisRun, Case, Finding, FindingType, Interview, Statement } from '../api/types'
 import { EvidencePanel } from '../components/EvidencePanel'
 import { FindingCard } from '../components/FindingCard'
+import { ReportsPanel } from '../components/ReportsPanel'
 
 const FILTERS: (FindingType | 'all')[] = ['all', 'possible_conflict', 'unclear', 'missing', 'match']
 
 export function CaseDetailPage() {
   const { t } = useTranslation()
   const { caseId } = useParams()
+  const { user } = useAuth()
   const [kase, setKase] = useState<Case | null>(null)
   const [interviews, setInterviews] = useState<Interview[]>([])
   const [statements, setStatements] = useState<Record<number, Statement[]>>({})
@@ -35,6 +39,14 @@ export function CaseDetailPage() {
   useEffect(() => {
     api.get<Case>(`/cases/${caseId}`).then(({ data }) => setKase(data))
     void loadInterviews()
+
+    // Show the most recent comparison on arrival: without this, someone returning to a
+    // case sees no findings and cannot build a report from work already done.
+    api.get<AnalysisRun[]>(`/cases/${caseId}/analysis-runs`).then(async ({ data }) => {
+      if (data.length === 0) return
+      const { data: latest } = await api.get<AnalysisRun>(`/analysis-runs/${data[0].id}`)
+      setRun(latest)
+    })
   }, [caseId, loadInterviews])
 
   async function addInterview(event: FormEvent<HTMLFormElement>) {
@@ -199,6 +211,8 @@ export function CaseDetailPage() {
       </section>
 
       <EvidencePanel caseId={caseId!} interviews={interviews} onRun={setRun} />
+
+      {user && <ReportsPanel caseId={caseId!} findings={findings} user={user} />}
 
       {run && (
         <section>

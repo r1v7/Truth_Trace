@@ -17,3 +17,7 @@ extend-immutable-calls = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+# The report template is HTML in f-strings; wrapping those lines hurts more than it helps.
+"app/services/reporting.py" = ["E501"]

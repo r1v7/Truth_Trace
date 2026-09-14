@@ -108,6 +108,30 @@
     "verifiedNote": "The stored file matches the digest recorded at upload. This does not mean its contents are accurate or that the file is authentic.",
     "alteredNote": "The stored file no longer matches the digest recorded at upload. Analysis against this file is refused until it is resolved."
   },
+  "reports": {
+    "title": "Investigation reports",
+    "pickFindings": "Choose the findings to include. The report freezes them when you submit it.",
+    "reportTitle": "Report title",
+    "summary": "Summary",
+    "create": "Create draft",
+    "submit": "Submit for review",
+    "approve": "Approve",
+    "return": "Return",
+    "decisionNote": "Reason (required to return)",
+    "preview": "Preview",
+    "pdf": "Download PDF",
+    "empty": "No reports yet.",
+    "itemCount": "{{count}} findings",
+    "supervisorNote": "Supervisor note",
+    "contentDigest": "Content SHA-256",
+    "awaitingOther": "Awaiting another reviewer — you cannot approve your own report."
+  },
+  "reportStatus": {
+    "draft": "Draft",
+    "submitted": "Submitted",
+    "approved": "Approved",
+    "returned": "Returned"
+  },
   "common": {
     "cancel": "Cancel",
     "save": "Save",

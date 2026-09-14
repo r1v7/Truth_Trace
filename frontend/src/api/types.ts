@@ -6,6 +6,7 @@ export type ReviewDecision = 'accepted' | 'rejected' | 'needs_more_info'
 export type RunKind = 'interview_pair' | 'evidence'
 export type EvidenceKind = 'call_log' | 'message_log' | 'transcript' | 'document' | 'other'
 export type IntegrityStatus = 'verified' | 'altered' | 'missing_file'
+export type ReportStatus = 'draft' | 'submitted' | 'approved' | 'returned'
 
 export interface User {
   id: number
@@ -107,4 +108,28 @@ export interface AnalysisRun {
   error: string | null
   created_at: string
   findings?: Finding[]
+}
+
+export interface ReportItem {
+  finding_id: number
+  position: number
+  note: string | null
+}
+
+export interface Report {
+  id: number
+  case_id: number
+  version: number
+  title: string
+  summary: string | null
+  status: ReportStatus
+  /** Digest of the frozen content, set at submission. */
+  content_sha256: string | null
+  prepared_by_id: number
+  submitted_at: string | null
+  decided_by_id: number | null
+  decided_at: string | null
+  decision_note: string | null
+  created_at: string
+  items: ReportItem[]
 }

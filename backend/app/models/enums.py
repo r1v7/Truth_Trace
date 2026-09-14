@@ -73,6 +73,19 @@ class ReviewDecision(str, enum.Enum):
     needs_more_info = "needs_more_info"
 
 
+class ReportStatus(str, enum.Enum):
+    """A report moves in one direction: drafted, submitted, then approved or returned.
+
+    Nothing is deleted on rejection - a returned report keeps its findings and its
+    supervisor's reason, so the history of what was proposed stays readable.
+    """
+
+    draft = "draft"
+    submitted = "submitted"
+    approved = "approved"
+    returned = "returned"
+
+
 class RunStatus(str, enum.Enum):
     pending = "pending"
     running = "running"
