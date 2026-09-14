@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 
 import { api } from '../api/client'
 import type { AnalysisRun, Case, Finding, FindingType, Interview, Statement } from '../api/types'
+import { EvidencePanel } from '../components/EvidencePanel'
 import { FindingCard } from '../components/FindingCard'
 
 const FILTERS: (FindingType | 'all')[] = ['all', 'possible_conflict', 'unclear', 'missing', 'match']
@@ -197,10 +198,15 @@ export function CaseDetailPage() {
         )}
       </section>
 
+      <EvidencePanel caseId={caseId!} interviews={interviews} onRun={setRun} />
+
       {run && (
         <section>
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <h2 className="font-semibold">{t('findings.title')}</h2>
+            <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+              {t(run.kind === 'evidence' ? 'findings.vsEvidence' : 'findings.vsInterview')}
+            </span>
             <span className="text-xs text-slate-500">
               {t('findings.engine')}: {run.analyzer_backend} {run.analyzer_version}
             </span>
@@ -233,7 +239,7 @@ export function CaseDetailPage() {
           ) : (
             <ul className="space-y-3">
               {visible.map((f) => (
-                <FindingCard key={f.id} finding={f} />
+                <FindingCard key={f.id} finding={f} kind={run.kind} />
               ))}
             </ul>
           )}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { api } from '../api/client'
-import type { Finding, FindingType, ReviewDecision } from '../api/types'
+import type { Finding, FindingType, ReviewDecision, RunKind } from '../api/types'
 
 const TONE: Record<FindingType, string> = {
   possible_conflict: 'border-red-300 bg-red-50',
@@ -20,8 +20,14 @@ const BADGE: Record<FindingType, string> = {
 
 const DECISIONS: ReviewDecision[] = ['accepted', 'rejected', 'needs_more_info']
 
-export function FindingCard({ finding }: { finding: Finding }) {
+export function FindingCard({ finding, kind }: { finding: Finding; kind?: RunKind }) {
   const { t } = useTranslation()
+  // On an evidence run the right-hand side is the evidence text, which has no Claim
+  // row of its own, so it travels in `details`.
+  const evidenceText =
+    typeof finding.details?.evidence_text === 'string' ? finding.details.evidence_text : null
+  const rightLabel = kind === 'evidence' ? 'evidence.evidenceSide' : 'findings.secondStatement'
+  const leftLabel = kind === 'evidence' ? 'findings.statementSide' : 'findings.firstStatement'
   const [decision, setDecision] = useState(finding.latest_decision)
   const [busy, setBusy] = useState(false)
 
@@ -57,20 +63,23 @@ export function FindingCard({ finding }: { finding: Finding }) {
       <p dir="auto" className="mb-3 text-sm text-slate-800">{finding.explanation}</p>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {([['firstStatement', finding.claim_a], ['secondStatement', finding.claim_b]] as const).map(
-          ([label, claim]) => (
-            <div key={label} className="rounded border border-slate-200 bg-white p-3">
-              <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400">
-                {t(`findings.${label}`)}
-              </p>
-              {claim ? (
-                <p dir="auto" className="text-sm text-slate-900">“{claim.text}”</p>
-              ) : (
-                <p className="text-sm italic text-slate-400">{t('findings.notMentioned')}</p>
-              )}
-            </div>
-          ),
-        )}
+        {(
+          [
+            [leftLabel, finding.claim_a?.text ?? null],
+            [rightLabel, finding.claim_b?.text ?? evidenceText],
+          ] as const
+        ).map(([label, text]) => (
+          <div key={label} className="rounded border border-slate-200 bg-white p-3">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+              {t(label)}
+            </p>
+            {text ? (
+              <p dir="auto" className="text-sm text-slate-900">“{text}”</p>
+            ) : (
+              <p className="text-sm italic text-slate-400">{t('findings.notMentioned')}</p>
+            )}
+          </div>
+        ))}
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">

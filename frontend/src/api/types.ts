@@ -3,6 +3,9 @@ export type CaseStatus = 'open' | 'under_review' | 'closed' | 'archived'
 export type FindingType = 'match' | 'possible_conflict' | 'missing' | 'unclear'
 export type FindingField = 'time' | 'location' | 'person' | 'action' | 'negation' | 'other'
 export type ReviewDecision = 'accepted' | 'rejected' | 'needs_more_info'
+export type RunKind = 'interview_pair' | 'evidence'
+export type EvidenceKind = 'call_log' | 'message_log' | 'transcript' | 'document' | 'other'
+export type IntegrityStatus = 'verified' | 'altered' | 'missing_file'
 
 export interface User {
   id: number
@@ -69,11 +72,35 @@ export interface Finding {
   latest_decision: ReviewDecision | null
 }
 
+export interface Evidence {
+  id: number
+  case_id: number
+  kind: EvidenceKind
+  original_filename: string
+  content_type: string
+  size_bytes: number
+  sha256: string
+  description: string | null
+  uploaded_by_id: number
+  created_at: string
+}
+
+export interface Integrity {
+  evidence_id: number
+  status: IntegrityStatus
+  recorded_sha256: string
+  computed_sha256: string | null
+  checked_at: string
+  note: string
+}
+
 export interface AnalysisRun {
   id: number
   case_id: number
+  kind: RunKind
   interview_a_id: number
-  interview_b_id: number
+  interview_b_id: number | null
+  evidence_id: number | null
   status: 'pending' | 'running' | 'completed' | 'failed'
   analyzer_backend: string
   analyzer_version: string

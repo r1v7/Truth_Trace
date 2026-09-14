@@ -21,6 +21,22 @@ ENGINE_VERSION = "0.1.0"
 TIME_TOLERANCE_MINUTES = 20
 
 
+@dataclass(frozen=True)
+class Sides:
+    """What to call each side in the explanations the investigator reads.
+
+    A statement-to-statement run says "the first interview"; an evidence run says
+    "the evidence". Naming the sides wrongly would misdescribe where a difference was
+    found, which is the one thing a finding has to get right.
+    """
+
+    a: str = "the first interview"
+    b: str = "the second interview"
+
+
+DEFAULT_SIDES = Sides()
+
+
 @dataclass
 class ClaimInput:
     id: int
@@ -114,7 +130,7 @@ def _link(
     return pairs, unmatched_a, unmatched_b
 
 
-def _judge(a: ClaimInput, b: ClaimInput, score: float) -> FindingResult:
+def _judge(a: ClaimInput, b: ClaimInput, score: float, sides: Sides) -> FindingResult:
     attrs_a, attrs_b = ex.extract(a.text), ex.extract(b.text)
     details = {"a": attrs_a.as_dict(), "b": attrs_b.as_dict(), "link_score": round(score, 3)}
 
@@ -122,10 +138,10 @@ def _judge(a: ClaimInput, b: ClaimInput, score: float) -> FindingResult:
         return FindingResult(FindingType.possible_conflict, fld, score, reason, a.id, b.id, details)
 
     if attrs_a.negated != attrs_b.negated:
-        affirmed, denied = ("first", "second") if attrs_b.negated else ("second", "first")
+        affirmed, denied = (sides.a, sides.b) if attrs_b.negated else (sides.b, sides.a)
         return conflict(
             FindingField.negation,
-            f"The {affirmed} statement asserts this, the {denied} one denies it.",
+            f"{affirmed.capitalize()} asserts this; {denied} denies it.",
         )
 
     if attrs_a.times and attrs_b.times and not _times_agree(attrs_a.times, attrs_b.times):
@@ -133,7 +149,7 @@ def _judge(a: ClaimInput, b: ClaimInput, score: float) -> FindingResult:
         times_b = ", ".join(ex.format_time(t) for t in sorted(attrs_b.times))
         return conflict(
             FindingField.time,
-            f"Time differs: {times_a} in the first statement vs {times_b} in the second "
+            f"Time differs: {times_a} in {sides.a} vs {times_b} in {sides.b} "
             f"(tolerance {TIME_TOLERANCE_MINUTES} min).",
         )
 
@@ -173,10 +189,14 @@ def _judge(a: ClaimInput, b: ClaimInput, score: float) -> FindingResult:
     )
 
 
-def compare(claims_a: list[ClaimInput], claims_b: list[ClaimInput]) -> list[FindingResult]:
+def compare(
+    claims_a: list[ClaimInput],
+    claims_b: list[ClaimInput],
+    sides: Sides = DEFAULT_SIDES,
+) -> list[FindingResult]:
     pairs, unmatched_a, unmatched_b = _link(claims_a, claims_b)
 
-    results = [_judge(claims_a[i], claims_b[j], score) for i, j, score in pairs]
+    results = [_judge(claims_a[i], claims_b[j], score, sides) for i, j, score in pairs]
 
     for i in sorted(unmatched_a):
         results.append(
@@ -184,7 +204,7 @@ def compare(claims_a: list[ClaimInput], claims_b: list[ClaimInput]) -> list[Find
                 FindingType.missing,
                 FindingField.other,
                 0.0,
-                "Mentioned in the first interview but not found in the second.",
+                f"Mentioned in {sides.a} but not found in {sides.b}.",
                 claim_a_id=claims_a[i].id,
                 details={"a": ex.extract(claims_a[i].text).as_dict()},
             )
@@ -195,7 +215,7 @@ def compare(claims_a: list[ClaimInput], claims_b: list[ClaimInput]) -> list[Find
                 FindingType.missing,
                 FindingField.other,
                 0.0,
-                "Mentioned in the second interview but not found in the first.",
+                f"Mentioned in {sides.b} but not found in {sides.a}.",
                 claim_b_id=claims_b[j].id,
                 details={"b": ex.extract(claims_b[j].text).as_dict()},
             )

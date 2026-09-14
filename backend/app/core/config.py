@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     model_cache_dir: str = "/models"
     similarity_link_threshold: float = 0.55
 
+    # Evidence storage
+    evidence_dir: str = "/storage/evidence"
+    max_evidence_mb: int = 50
+
     # CORS
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 

@@ -1,6 +1,7 @@
 from app.models.analysis import AnalysisRun, Finding, FindingReview
 from app.models.audit import AuditLog
 from app.models.case import Case, CaseMember, Claim, Interview, Statement
+from app.models.evidence import Evidence
 from app.models.user import User
 
 __all__ = [
@@ -9,6 +10,7 @@ __all__ = [
     "Case",
     "CaseMember",
     "Claim",
+    "Evidence",
     "Finding",
     "FindingReview",
     "Interview",

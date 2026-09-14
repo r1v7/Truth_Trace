@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from app.models.enums import FindingField, FindingType, ReviewDecision, RunStatus
+from app.models.enums import FindingField, FindingType, ReviewDecision, RunKind, RunStatus
 
 
 class AnalysisRunCreate(BaseModel):
@@ -20,6 +20,9 @@ class ClaimRef(BaseModel):
 
 
 class FindingOut(BaseModel):
+    """`claim_b` is null on evidence runs - the matching evidence wording is in
+    `details["evidence_text"]`, since evidence text has no Claim rows of its own."""
+
     id: int
     finding_type: FindingType
     field: FindingField
@@ -34,8 +37,10 @@ class FindingOut(BaseModel):
 class AnalysisRunOut(BaseModel):
     id: int
     case_id: int
+    kind: RunKind
     interview_a_id: int
-    interview_b_id: int
+    interview_b_id: int | None
+    evidence_id: int | None
     status: RunStatus
     analyzer_backend: str
     analyzer_version: str

@@ -5,18 +5,29 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
-from app.models.enums import FindingField, FindingType, ReviewDecision, RunStatus
+from app.models.enums import FindingField, FindingType, ReviewDecision, RunKind, RunStatus
 
 
 class AnalysisRun(Base, TimestampMixin):
-    """One comparison of two interviews of the same subject."""
+    """One comparison: either two interviews of the same subject, or an interview
+    against a piece of text evidence.
+
+    Both kinds produce the same findings and go through the same review, so the
+    investigator reads one kind of result rather than two.
+    """
 
     __tablename__ = "analysis_runs"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     case_id: Mapped[int] = mapped_column(ForeignKey("cases.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[RunKind] = mapped_column(
+        Enum(RunKind, name="run_kind"), default=RunKind.interview_pair, nullable=False
+    )
     interview_a_id: Mapped[int] = mapped_column(ForeignKey("interviews.id", ondelete="CASCADE"))
-    interview_b_id: Mapped[int] = mapped_column(ForeignKey("interviews.id", ondelete="CASCADE"))
+    interview_b_id: Mapped[int | None] = mapped_column(
+        ForeignKey("interviews.id", ondelete="CASCADE")
+    )
+    evidence_id: Mapped[int | None] = mapped_column(ForeignKey("evidence.id", ondelete="CASCADE"))
     status: Mapped[RunStatus] = mapped_column(
         Enum(RunStatus, name="run_status"), default=RunStatus.pending, nullable=False
     )

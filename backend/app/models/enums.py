@@ -42,6 +42,31 @@ class FindingField(str, enum.Enum):
     other = "other"
 
 
+class RunKind(str, enum.Enum):
+    interview_pair = "interview_pair"
+    evidence = "evidence"
+
+
+class EvidenceKind(str, enum.Enum):
+    """What the uploaded file is, which decides how it can be checked.
+
+    Only text-shaped evidence can be compared against statements today. Images and
+    audio are stored and hashed, but not analysed.
+    """
+
+    call_log = "call_log"
+    message_log = "message_log"
+    transcript = "transcript"
+    document = "document"
+    other = "other"
+
+
+class IntegrityStatus(str, enum.Enum):
+    verified = "verified"
+    altered = "altered"
+    missing_file = "missing_file"
+
+
 class ReviewDecision(str, enum.Enum):
     accepted = "accepted"
     rejected = "rejected"

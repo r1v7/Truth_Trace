@@ -41,7 +41,7 @@ def _claim_ref(claim: Claim | None) -> ClaimRef | None:
     )
 
 
-def _serialize_run(db: Session, run: AnalysisRun) -> AnalysisRunDetail:
+def serialize_run(db: Session, run: AnalysisRun) -> AnalysisRunDetail:
     findings = db.query(Finding).filter(Finding.run_id == run.id).order_by(Finding.id).all()
     out: list[FindingOut] = []
     for f in findings:
@@ -143,7 +143,7 @@ def create_run(
     )
     db.commit()
     db.refresh(run)
-    return _serialize_run(db, run)
+    return serialize_run(db, run)
 
 
 @router.get("/cases/{case_id}/analysis-runs", response_model=list[AnalysisRunOut])
@@ -163,7 +163,7 @@ def get_run(run_id: int, db: DbSession, user: CurrentUser):
     if run is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Analysis run not found")
     get_case_for_user(db, run.case_id, user)
-    return _serialize_run(db, run)
+    return serialize_run(db, run)
 
 
 @router.post("/findings/{finding_id}/reviews", response_model=ReviewOut, status_code=201)

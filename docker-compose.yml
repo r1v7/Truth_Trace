@@ -28,6 +28,7 @@ services:
     volumes:
       - ./backend:/app
       - models_cache:/models
+      - evidence:/storage/evidence
     command: >
       sh -c "alembic upgrade head &&
              uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
@@ -35,3 +36,4 @@ services:
 volumes:
   pgdata:
   models_cache:
+  evidence:

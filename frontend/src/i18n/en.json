@@ -4,7 +4,11 @@
     "tagline": "Decision support for statement comparison",
     "disclaimer": "Truth Trace highlights differences between statements. It does not determine guilt. Every result must be reviewed by the investigator."
   },
-  "nav": { "cases": "Cases", "logout": "Sign out", "language": "العربية" },
+  "nav": {
+    "cases": "Cases",
+    "logout": "Sign out",
+    "language": "العربية"
+  },
   "login": {
     "title": "Sign in",
     "email": "Email",
@@ -65,7 +69,10 @@
     "rejected": "Reject",
     "needs_more_info": "Needs more info",
     "reviewed": "Reviewed: {{decision}}",
-    "empty": "No results for this filter."
+    "empty": "No results for this filter.",
+    "vsInterview": "Interview vs interview",
+    "vsEvidence": "Statement vs evidence",
+    "statementSide": "Statement"
   },
   "field": {
     "time": "Time",
@@ -75,5 +82,36 @@
     "negation": "Negation",
     "other": "General"
   },
-  "common": { "cancel": "Cancel", "save": "Save", "loading": "Loading…", "error": "Something went wrong." }
+  "evidence": {
+    "title": "Digital evidence",
+    "file": "File",
+    "kind": "Type",
+    "description": "Description",
+    "upload": "Upload",
+    "verify": "Verify integrity",
+    "check": "Check against statement",
+    "pickInterview": "Choose an interview…",
+    "empty": "No evidence uploaded yet.",
+    "evidenceSide": "Evidence"
+  },
+  "evidenceKind": {
+    "call_log": "Call log",
+    "message_log": "Message log",
+    "transcript": "Transcript",
+    "document": "Document",
+    "other": "Other"
+  },
+  "integrity": {
+    "verified": "Unchanged since upload",
+    "altered": "File has changed",
+    "missing_file": "File is missing",
+    "verifiedNote": "The stored file matches the digest recorded at upload. This does not mean its contents are accurate or that the file is authentic.",
+    "alteredNote": "The stored file no longer matches the digest recorded at upload. Analysis against this file is refused until it is resolved."
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading…",
+    "error": "Something went wrong."
+  }
 }
