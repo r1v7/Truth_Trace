@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+/* Arabic needs a taller line box than the Latin default. */
+[dir="rtl"] body,
+[dir="rtl"] {
+  line-height: 1.85;
+}

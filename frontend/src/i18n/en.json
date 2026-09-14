@@ -1,0 +1,79 @@
+{
+  "app": {
+    "name": "Truth Trace",
+    "tagline": "Decision support for statement comparison",
+    "disclaimer": "Truth Trace highlights differences between statements. It does not determine guilt. Every result must be reviewed by the investigator."
+  },
+  "nav": { "cases": "Cases", "logout": "Sign out", "language": "العربية" },
+  "login": {
+    "title": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "error": "Incorrect email or password"
+  },
+  "cases": {
+    "title": "Cases",
+    "new": "New case",
+    "reference": "Reference",
+    "caseTitle": "Title",
+    "description": "Description",
+    "status": "Status",
+    "created": "Created",
+    "empty": "No cases yet. Create the first one.",
+    "create": "Create case"
+  },
+  "status": {
+    "open": "Open",
+    "under_review": "Under review",
+    "closed": "Closed",
+    "archived": "Archived"
+  },
+  "case": {
+    "interviews": "Interviews",
+    "newInterview": "Add interview",
+    "subject": "Subject",
+    "session": "Session label",
+    "date": "Date",
+    "statements": "Statements",
+    "addStatement": "Add statement",
+    "statementBody": "Statement text",
+    "compare": "Compare two interviews",
+    "interviewA": "First interview",
+    "interviewB": "Second interview",
+    "run": "Run comparison",
+    "runs": "Previous comparisons",
+    "noInterviews": "Add at least two interviews with the same subject to compare them.",
+    "claims": "{{count}} claims"
+  },
+  "findings": {
+    "title": "Results",
+    "engine": "Engine",
+    "all": "All",
+    "match": "Matching",
+    "possible_conflict": "Possible conflict",
+    "missing": "Missing",
+    "unclear": "Unclear",
+    "score": "Similarity score",
+    "scoreHint": "Internal engine score, not a calibrated confidence percentage.",
+    "field": "Detail",
+    "firstStatement": "First interview",
+    "secondStatement": "Second interview",
+    "notMentioned": "Not mentioned in this interview",
+    "review": "Your review",
+    "accepted": "Accept",
+    "rejected": "Reject",
+    "needs_more_info": "Needs more info",
+    "reviewed": "Reviewed: {{decision}}",
+    "empty": "No results for this filter."
+  },
+  "field": {
+    "time": "Time",
+    "location": "Location",
+    "person": "People",
+    "action": "Action",
+    "negation": "Negation",
+    "other": "General"
+  },
+  "common": { "cancel": "Cancel", "save": "Save", "loading": "Loading…", "error": "Something went wrong." }
+}
