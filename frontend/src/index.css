@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
-/* Space Grotesk carries no Arabic, so an Arabic face is loaded alongside it and put
-   first in the RTL stack. Both have real system fallbacks: the app must stay usable
-   on a machine with no route to the font CDN. */
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap");
+/* Fonts are self-hosted (see scripts/fetch-fonts.py): the rest of the system runs
+   offline, and an interface that silently falls back to a different face on a machine
+   with no internet is not the same interface. Space Grotesk carries no Arabic, so
+   IBM Plex Sans Arabic is loaded alongside it and put first in the RTL stack.
+   System fallbacks are still declared in every stack. */
+@import "./fonts.css";
 
 @theme {
   --color-ink: #e6ecf5;
