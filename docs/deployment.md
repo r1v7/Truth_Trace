@@ -6,6 +6,14 @@ GitHub Pages serves static files only — no Python, no Postgres — so the comp
 engine cannot run there. The Pages site is the interface; it calls an API deployed
 separately. Neither half is useful without the other.
 
+## Currently deployed
+
+| | |
+| --- | --- |
+| Site | https://r1v7.github.io/Truth_Trace/ |
+| API | https://truth-trace-api.onrender.com |
+| Database created | 2026-09-15 — **expires 2026-10-15** |
+
 ## The 30-day clock on the database
 
 Render's free Postgres is **deleted 30 days after it is created**. Write down the

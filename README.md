@@ -42,6 +42,14 @@ The interface is then on http://localhost:5173.
 
 ## Public demo
 
+**https://r1v7.github.io/Truth_Trace/** — sign in as `demo.investigator@truthtrace.com`
+with `DemoPass123!`, or as `demo.supervisor@truthtrace.com` with the same password to
+see the supervisor's side of report approval.
+
+The first request after a quiet period wakes the API and can take up to a minute; the
+interface says so while it waits. The demo database is public and disposable — put
+nothing real in it.
+
 The interface deploys to GitHub Pages; the API and its database run on Render. GitHub
 Pages is static hosting, so the engine cannot run there — the Pages site is only the
 interface, and it calls the deployed API.
