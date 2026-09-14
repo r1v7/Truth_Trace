@@ -42,14 +42,15 @@ The interface is then on http://localhost:5173.
 
 ## Public demo
 
-The interface deploys to GitHub Pages and the API to Render, with the database on
-Neon. GitHub Pages is static hosting, so the engine cannot run there — the Pages site
-is only the interface, and it calls the deployed API.
+The interface deploys to GitHub Pages; the API and its database run on Render. GitHub
+Pages is static hosting, so the engine cannot run there — the Pages site is only the
+interface, and it calls the deployed API.
 
 See [docs/deployment.md](docs/deployment.md) for the setup and, more importantly, for
 what the free tiers cost: the API sleeps after 15 minutes idle (the interface shows a
-"waking the server" banner), uploaded evidence does not survive a restart, and the demo
-credentials are public by definition. Put nothing real in the demo database.
+"waking the server" banner), the free database is deleted 30 days after it is created,
+uploaded evidence does not survive a restart, and the demo credentials are public by
+definition. Put nothing real in the demo database.
 
 ## Layout
 

@@ -1,33 +1,30 @@
 # Deploying the public demo
 
-Frontend on GitHub Pages, API on Render, database on Neon.
+Frontend on GitHub Pages, API and database on Render.
 
 GitHub Pages serves static files only — no Python, no Postgres — so the comparison
 engine cannot run there. The Pages site is the interface; it calls an API deployed
 separately. Neither half is useful without the other.
 
-## Why the database is not on Render
+## The 30-day clock on the database
 
-Render's free Postgres is **deleted after 30 days**. Hand out a demo link today and it
-stops working a month later, quite possibly the week of the defence. Neon's free tier
-has no such expiry, so the database goes there and Render runs only the API container.
+Render's free Postgres is **deleted 30 days after it is created**. Write down the
+deploy date. If the demo has to outlive it, move the database to a provider without an
+expiry — Neon and Supabase both have free tiers — and replace the `fromDatabase`
+references in `render.yaml` with that provider's four `POSTGRES_*` values.
 
 ## Order of operations
 
-### 1. Database (Neon)
+### 1. API and database (Render)
 
-Create a free project and copy the connection details. You need the host, database
-name, user and password separately — Render's env vars below are individual fields,
-not one URL.
+`render.yaml` in the repository root is a blueprint: New → Blueprint, pick the repo,
+and Render creates both the database and the API service from it.
 
-### 2. API (Render)
-
-`render.yaml` in the repository root is a blueprint: point Render at the repo and it
-picks it up. Everything marked `sync: false` must be filled in the dashboard:
+The database credentials are wired by Render through `fromDatabase`, so nobody ever
+copies a database password through a dashboard field. Only two values are left to fill:
 
 | Variable | Value |
 | --- | --- |
-| `POSTGRES_HOST`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | from Neon |
 | `FIRST_ADMIN_EMAIL`, `FIRST_ADMIN_PASSWORD` | the demo administrator |
 | `CORS_ORIGINS` | `https://<user>.github.io` — the origin only, no path |
 
@@ -37,7 +34,7 @@ Migrations run on boot, and `SEED_DEMO=true` creates the demo case on first star
 one case, two interviews of the same subject, and a completed comparison run. The
 findings are produced by the real engine at seed time, not written by hand.
 
-### 3. Frontend (GitHub Pages)
+### 2. Frontend (GitHub Pages)
 
 In the repository: **Settings → Pages → Source: GitHub Actions**, then
 **Settings → Secrets and variables → Actions → Variables** and add:
@@ -70,7 +67,7 @@ read everything in the demo database. Put nothing real in it.
 
 - Open the link cold, from a phone on mobile data, the day before. That is the only
   test that covers DNS, HTTPS, CORS, cold start and the seed together.
-- Check the Neon project has not been suspended for inactivity.
+- Check the database has not passed its 30-day expiry.
 - Have `docker compose up` working locally as a fallback. A demo that depends on three
   free services and a conference network needs one.
 

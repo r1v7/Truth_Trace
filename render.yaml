@@ -1,13 +1,22 @@
-# Render blueprint for the public demo API.
+# Render blueprint for the public demo.
 #
-# The database is deliberately NOT declared here. Render's free Postgres is deleted
-# after 30 days, which would kill the demo link some time after it is handed out;
-# point DATABASE_* at a Neon (or equivalent) free database instead and set the values
-# below in the Render dashboard.
+# WARNING: Render's free Postgres is deleted 30 days after it is created. Note the
+# date you deploy this. If the demo must outlive that, move the database to a
+# provider without an expiry (Neon and Supabase both have free tiers) and replace the
+# fromDatabase references below with the four POSTGRES_* values from that provider.
 #
-# The web service still sleeps after 15 minutes idle on the free plan, so the first
+# The web service also sleeps after 15 minutes idle on the free plan, so the first
 # request can take up to a minute. The interface shows a "waking the server" banner
 # for exactly that reason, and .github/workflows/keep-warm.yml pings it on a schedule.
+
+databases:
+  - name: truth-trace-db
+    databaseName: truthtrace
+    user: truthtrace
+    plan: free
+    region: frankfurt
+    # Reachable only from services in this Render account, never from the internet.
+    ipAllowList: []
 
 services:
   - type: web
@@ -26,23 +35,35 @@ services:
       - key: PORT
         value: 8000
 
-      # Set these in the dashboard from your Neon connection string.
+      # Wired by Render from the database above: the credentials are never displayed,
+      # copied through a dashboard field, or written down anywhere.
       - key: POSTGRES_HOST
-        sync: false
+        fromDatabase:
+          name: truth-trace-db
+          property: host
       - key: POSTGRES_PORT
-        value: 5432
+        fromDatabase:
+          name: truth-trace-db
+          property: port
       - key: POSTGRES_DB
-        sync: false
+        fromDatabase:
+          name: truth-trace-db
+          property: database
       - key: POSTGRES_USER
-        sync: false
+        fromDatabase:
+          name: truth-trace-db
+          property: user
       - key: POSTGRES_PASSWORD
-        sync: false
+        fromDatabase:
+          name: truth-trace-db
+          property: password
 
       # Generated once by Render and kept; rotating it signs everyone out.
       - key: JWT_SECRET
         generateValue: true
 
-      # The demo is public: these credentials will be known. Never reuse them.
+      # The demo is public: this account's password will be known to anyone who is
+      # given the link. Never reuse a password you use elsewhere.
       - key: FIRST_ADMIN_EMAIL
         sync: false
       - key: FIRST_ADMIN_PASSWORD
