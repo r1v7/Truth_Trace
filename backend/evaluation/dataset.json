@@ -1,0 +1,59 @@
+{
+  "description": "Hand-labelled claim pairs for measuring the comparison engine. Each item is one claim from a first interview and one from a second, with the label a careful investigator would give. Labels were written before running the engine and must not be edited to make results look better - a wrong prediction is a finding about the engine, not about the label.",
+  "label_guide": {
+    "match": "Same thing described, no differing detail, stated plainly.",
+    "possible_conflict": "Linked to the same thing but a detail differs: time, location, people, or one denies what the other asserts.",
+    "unclear": "Agrees, but at least one side is hedged ('around', 'I think') so the detail cannot be pinned down.",
+    "missing": "The two claims are about different things and should not be paired at all."
+  },
+  "items": [
+    {"id": "m01", "expected": "match", "a": "I arrived at the mall at 8:00 PM.", "b": "I arrived at the mall at 8:00 PM."},
+    {"id": "m02", "expected": "match", "a": "I arrived at the mall at 8:00 PM.", "b": "I arrived at the shopping centre at 20:00."},
+    {"id": "m03", "expected": "match", "a": "I met Sara near the entrance.", "b": "I met Sara by the entrance."},
+    {"id": "m04", "expected": "match", "a": "I drove to the petrol station after work.", "b": "I drove to the gas station after work."},
+    {"id": "m05", "expected": "match", "a": "I returned home at midnight.", "b": "I returned to my flat at midnight."},
+    {"id": "m06", "expected": "match", "a": "I parked the car in the car park.", "b": "I parked the car in the parking lot."},
+    {"id": "m07", "expected": "match", "a": "I called Omar twice that evening.", "b": "I phoned Omar twice that evening."},
+    {"id": "m08", "expected": "match", "a": "I left the office at 5:30 PM.", "b": "I left the office at 17:30."},
+    {"id": "m09", "expected": "match", "a": "I waited outside the bank for ten minutes.", "b": "I waited outside the bank for ten minutes."},
+    {"id": "m10", "expected": "match", "a": "I arrived at 8:00 PM and Khalid was already there.", "b": "Khalid was already there when I arrived at 8:00 PM."},
+    {"id": "m11", "expected": "match", "a": "I took a taxi to the mall.", "b": "I took a taxi to the shopping mall."},
+    {"id": "m12", "expected": "match", "a": "I reached the house at quarter past nine in the evening.", "b": "I reached the house at 9:15 PM."},
+
+    {"id": "t01", "expected": "possible_conflict", "field": "time", "a": "I arrived at the mall at 8:00 PM.", "b": "I arrived at the mall at 10:30 PM."},
+    {"id": "t02", "expected": "possible_conflict", "field": "time", "a": "I left the office at 5:30 PM.", "b": "I left the office at 7:00 PM."},
+    {"id": "t03", "expected": "possible_conflict", "field": "time", "a": "I got home at midnight.", "b": "I got home at 9:00 PM."},
+    {"id": "t04", "expected": "possible_conflict", "field": "time", "a": "I reached the station at eight in the evening.", "b": "I reached the station at eight in the morning."},
+    {"id": "t05", "expected": "possible_conflict", "field": "time", "a": "I met him at half past seven in the evening.", "b": "I met him at 10:00 PM."},
+    {"id": "t06", "expected": "possible_conflict", "field": "time", "a": "I arrived at 20:00.", "b": "I arrived at 22:45."},
+
+    {"id": "l01", "expected": "possible_conflict", "field": "location", "a": "I waited at the mall for an hour.", "b": "I waited at the airport for an hour."},
+    {"id": "l02", "expected": "possible_conflict", "field": "location", "a": "I spent the evening at home.", "b": "I spent the evening at the restaurant."},
+    {"id": "l03", "expected": "possible_conflict", "field": "location", "a": "I met Sara at the cafe.", "b": "I met Sara at the hospital."},
+    {"id": "l04", "expected": "possible_conflict", "field": "location", "a": "I parked in the parking lot.", "b": "I parked in the street."},
+
+    {"id": "p01", "expected": "possible_conflict", "field": "person", "a": "I met Sara near the entrance.", "b": "I met Layla near the entrance."},
+    {"id": "p02", "expected": "possible_conflict", "field": "person", "a": "I was with Khalid the whole evening.", "b": "I was with Omar the whole evening."},
+    {"id": "p03", "expected": "possible_conflict", "field": "person", "a": "Faisal drove me to the mall.", "b": "Nasser drove me to the mall."},
+
+    {"id": "n01", "expected": "possible_conflict", "field": "negation", "a": "I was at home that night.", "b": "I was not at home that night."},
+    {"id": "n02", "expected": "possible_conflict", "field": "negation", "a": "I did not go to the parking lot.", "b": "I went to the parking lot afterwards."},
+    {"id": "n03", "expected": "possible_conflict", "field": "negation", "a": "I saw Sara at the entrance.", "b": "I never saw Sara at the entrance."},
+    {"id": "n04", "expected": "possible_conflict", "field": "negation", "a": "I used my car that evening.", "b": "I did not use my car that evening."},
+    {"id": "n05", "expected": "possible_conflict", "field": "negation", "a": "I spoke to the guard at the gate.", "b": "I did not speak to the guard at the gate."},
+
+    {"id": "u01", "expected": "unclear", "a": "I arrived at the mall at 8:00 PM.", "b": "I reached the shopping centre at around eight in the evening."},
+    {"id": "u02", "expected": "unclear", "a": "I left the house at 7:00 PM.", "b": "I think I left the house at about seven."},
+    {"id": "u03", "expected": "unclear", "a": "I met Sara at the entrance.", "b": "I met someone at the entrance, maybe Sara."},
+    {"id": "u04", "expected": "unclear", "a": "I got home at 11:00 PM.", "b": "I got home around eleven, I am not sure."},
+    {"id": "u05", "expected": "unclear", "a": "I parked in the car park.", "b": "I probably parked in the car park."},
+    {"id": "u06", "expected": "unclear", "a": "I was at the cafe that evening.", "b": "I believe I was at the cafe that evening."},
+
+    {"id": "x01", "expected": "missing", "a": "I bought a blue jacket from the shop.", "b": "The weather was cold and rainy all day."},
+    {"id": "x02", "expected": "missing", "a": "My phone battery died before I left.", "b": "I had dinner with my family on Friday."},
+    {"id": "x03", "expected": "missing", "a": "I paid the driver in cash.", "b": "The lights in the corridor were broken."},
+    {"id": "x04", "expected": "missing", "a": "I work as an accountant downtown.", "b": "My brother borrowed the car last week."},
+    {"id": "x05", "expected": "missing", "a": "The meeting was postponed twice.", "b": "I bought groceries on my way back."},
+    {"id": "x06", "expected": "missing", "a": "I signed the rental contract in March.", "b": "The music at the party was very loud."}
+  ]
+}

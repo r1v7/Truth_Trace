@@ -42,31 +42,37 @@ def _times_agree(a: set[int], b: set[int]) -> bool:
     return any(abs(x - y) <= TIME_TOLERANCE_MINUTES for x in a for y in b)
 
 
+# The action is the spine of a claim: two claims with the same verb are usually about
+# the same event, and the detail that differs is the finding. Places and people are
+# weaker evidence on their own - many events happen at the same place.
+_ACTION_WEIGHT = 2
+_DETAIL_WEIGHT = 1
+
+
 def _attribute_overlap(a: ex.Attributes, b: ex.Attributes) -> float:
-    """How much of the *same event* the two claims describe.
+    """How much evidence there is that the two claims describe the *same event*.
 
     Wording similarity alone misses paraphrases ("the mall" vs "the shopping centre"),
-    so shared places, people, actions and near-equal times act as a second, independent
-    linking signal. Times only count as evidence of the same event when they agree;
-    a time difference is what stage 3 is meant to flag, not a reason to stop linking.
+    so shared places, people, actions and agreeing times act as a second, independent
+    linking signal.
     """
     shared = 0
     total = 0
-    for set_a, set_b in (
-        (a.locations, b.locations),
-        (a.persons, b.persons),
-        (a.actions, b.actions),
+    for set_a, set_b, weight in (
+        (a.actions, b.actions, _ACTION_WEIGHT),
+        (a.locations, b.locations, _DETAIL_WEIGHT),
+        (a.persons, b.persons, _DETAIL_WEIGHT),
     ):
         if set_a and set_b:
-            total += 1
+            total += weight
             if set_a & set_b:
-                shared += 1
-    # Agreeing times are evidence of the same event; disagreeing times are deliberately
-    # ignored here, or the very contradiction stage 3 looks for would stop the pair
-    # from ever being linked.
+                shared += weight
+    # Agreeing times are evidence of the same event. Disagreeing times are deliberately
+    # left out of the denominator: the very contradiction stage 3 exists to report must
+    # not be what stops the pair from being linked in stage 1.
     if a.times and b.times and _times_agree(a.times, b.times):
-        total += 1
-        shared += 1
+        total += _DETAIL_WEIGHT
+        shared += _DETAIL_WEIGHT
     return shared / total if total else 0.0
 
 

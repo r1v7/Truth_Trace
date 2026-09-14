@@ -20,10 +20,56 @@ _NEGATIONS = {
     "hadn't", "hasn't", "isn't", "aren't", "don't", "doesn't", "cannot", "can't",
 }
 
+# Phrases where "not" expresses uncertainty rather than denial of the claim itself.
+_HEDGED_NEGATION_RE = re.compile(
+    r"\b(?:am|are|is|was|were|'m)?\s*not\s+"
+    r"(?:entirely\s+|totally\s+|completely\s+|really\s+|quite\s+)?"
+    r"(?:sure|certain|positive|confident)\b",
+    re.IGNORECASE,
+)
+
 _HEDGES = {
     "maybe", "perhaps", "possibly", "probably", "approximately", "around",
     "about", "roughly", "think", "guess", "believe", "unsure", "sure",
     "remember", "somewhere", "someone", "something", "sometime",
+}
+
+# Irregular past tenses, mapped to their stem. Without these the most common verbs in
+# a statement ("I met", "I went", "I saw") carry no action signal at all.
+_IRREGULAR_VERBS = {
+    "met": "meet", "went": "go", "gone": "go", "got": "get", "saw": "see",
+    "seen": "see", "left": "leave", "took": "take", "taken": "take",
+    "drove": "drive", "driven": "drive", "came": "come", "ran": "run",
+    "paid": "pay", "bought": "buy", "brought": "bring", "spoke": "speak",
+    "spoken": "speak", "told": "tell", "gave": "give", "given": "give",
+    "made": "make", "found": "find", "wrote": "write", "written": "write",
+    "sent": "send", "heard": "hear", "held": "hold", "kept": "keep",
+    "knew": "know", "said": "say", "sat": "sit", "stood": "stand",
+    "slept": "sleep", "ate": "eat", "drank": "drink", "wore": "wear",
+    "lost": "lose", "felt": "feel", "thought": "think", "caught": "catch",
+}
+
+# Verbs that mean the same thing in a statement. Without this, "I arrived at the mall"
+# and "I reached the shopping centre" look like two different actions. Keep this list
+# narrow: collapsing genuinely different verbs would hide real differences.
+_ACTION_SYNONYMS = {
+    "reach": "arrive",
+    "arriv": "arrive",
+    "phon": "call",
+    "depart": "leave",
+    "purchas": "buy",
+    "spoke": "speak",
+}
+
+# Words that can open a sentence but are never a person's name.
+_SENTENCE_STARTERS = {
+    "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+    "january", "february", "march", "april", "may", "june", "july", "august",
+    "september", "october", "november", "december",
+    "the", "then", "after", "before", "when", "while", "during", "later",
+    "yesterday", "today", "tomorrow", "that", "this", "there", "he", "she",
+    "they", "we", "it", "my", "his", "her", "our", "their", "at", "in", "on",
+    "first", "next", "finally", "afterwards", "around", "about", "both",
 }
 
 _LOCATION_CUES = r"(?:at|in|to|from|near|inside|outside|behind|beside)"
@@ -149,38 +195,52 @@ def extract_locations(text: str) -> set[str]:
 
 
 def extract_persons(text: str) -> set[str]:
-    """Capitalised tokens that are not sentence-initial. Coarse, but transparent."""
+    """Capitalised tokens that are not ordinary words. Coarse, but transparent.
+
+    A name that opens a sentence still names a person - "Faisal drove me" as much as
+    "I met Faisal" - so the first word is filtered through a stop list rather than
+    skipped outright.
+    """
     persons: set[str] = set()
     for m in _PROPER_RE.finditer(text):
-        if m.start() == 0:
+        lowered = m.group(1).lower()
+        if lowered in _STOPWORDS or lowered in _NUMBER_WORDS:
             continue
-        token = m.group(1)
-        if token.lower() in _STOPWORDS or token.lower() in _NUMBER_WORDS:
+        if lowered in _SENTENCE_STARTERS:
             continue
-        persons.add(token.lower())
+        persons.add(lowered)
     return persons
 
 
 def extract_actions(text: str) -> set[str]:
-    """Crude verb stems. Enough to tell 'arrived' apart from 'left'."""
+    """Crude verb stems, with synonyms collapsed. Enough to tell 'arrived' from 'left'."""
     actions: set[str] = set()
     for token in re.findall(r"\b[a-z]+\b", text.lower()):
         if token in _NEGATIONS or token in _STOPWORDS or token in _HEDGES:
             continue
-        if token.endswith("ed") and len(token) > 4:
-            actions.add(token[:-2].rstrip("d"))
+        if token in _IRREGULAR_VERBS:
+            stem = _IRREGULAR_VERBS[token]
+        elif token.endswith("ed") and len(token) > 4:
+            stem = token[:-2].rstrip("d")
         elif token.endswith("ing") and len(token) > 5:
-            actions.add(token[:-3])
+            stem = token[:-3]
+        else:
+            continue
+        actions.add(_ACTION_SYNONYMS.get(stem, stem))
     return actions
 
 
 def extract(text: str) -> Attributes:
-    tokens = set(re.findall(r"\b[\w']+\b", text.lower()))
+    # "I am not sure" must not read as a denial of the claim, so uncertainty phrases are
+    # removed before negation is looked for - while still counting as hedging.
+    hedged_negation = bool(_HEDGED_NEGATION_RE.search(text))
+    denial_tokens = set(re.findall(r"\b[\w']+\b", _HEDGED_NEGATION_RE.sub(" ", text).lower()))
+    all_tokens = set(re.findall(r"\b[\w']+\b", text.lower()))
     return Attributes(
         times=extract_times(text),
         locations=extract_locations(text),
         persons=extract_persons(text),
         actions=extract_actions(text),
-        negated=bool(tokens & _NEGATIONS),
-        hedged=bool(tokens & _HEDGES),
+        negated=bool(denial_tokens & _NEGATIONS),
+        hedged=bool(all_tokens & _HEDGES) or hedged_negation,
     )
