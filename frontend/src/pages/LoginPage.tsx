@@ -15,18 +15,24 @@ export function LoginPage() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<'credentials' | 'unreachable' | 'server' | null>(null)
   const [busy, setBusy] = useState(false)
 
   async function submit(event: FormEvent) {
     event.preventDefault()
     setBusy(true)
-    setError(false)
+    setError(null)
     try {
       await login(email, password)
       navigate('/cases')
-    } catch {
-      setError(true)
+    } catch (err) {
+      // A failure to reach the server must not be reported as a wrong password: the
+      // demo API sleeps, and telling someone their credentials are wrong when the
+      // server simply never answered sends them looking in the wrong place.
+      const status = (err as { response?: { status?: number } }).response?.status
+      if (status === 401) setError('credentials')
+      else if (status === undefined) setError('unreachable')
+      else setError('server')
     } finally {
       setBusy(false)
     }
@@ -118,7 +124,9 @@ export function LoginPage() {
           />
 
           {error && (
-            <p className="mb-4 text-[13px] text-[var(--color-danger)]">{t('login.error')}</p>
+            <p className="mb-4 text-[13px] leading-relaxed text-[var(--color-danger)]">
+              {t(`login.${error}`)}
+            </p>
           )}
 
           <button type="submit" disabled={busy} className="tt-btn tt-btn-primary w-full py-3">

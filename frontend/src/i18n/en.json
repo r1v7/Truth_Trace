@@ -16,7 +16,6 @@
     "email": "Email",
     "password": "Password",
     "submit": "Sign in",
-    "error": "Incorrect email or password",
     "eyebrow": "Statement forensics",
     "headlineTop": "Two accounts.\nOne timeline.",
     "headlineAccent": "Every difference traced to the words.",
@@ -24,7 +23,10 @@
     "version": "api 0.1.0 · engine 0.1.0",
     "online": "online",
     "auditNote": "Every access is written to the audit trail.",
-    "lockedOut": "Locked out? Your case administrator can reset access. Failed attempts are recorded."
+    "lockedOut": "Locked out? Your case administrator can reset access. Failed attempts are recorded.",
+    "credentials": "Incorrect email or password.",
+    "unreachable": "Cannot reach the server. It may still be waking up — wait a moment and try again.",
+    "server": "The server answered with an error. Nothing was signed in."
   },
   "cases": {
     "title": "Cases",
